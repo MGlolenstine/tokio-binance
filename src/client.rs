@@ -1,44 +1,45 @@
 use reqwest::{Url, Client};
 use crate::param::*;
-use crate::builder::ParamBuilder;
+use crate::builder::{ParamBuilder, Auth};
 
-struct AccountClient {
+pub struct AccountClient {
     api_key: String,
-    api_secret: String,
+    secret_key: String,
     market_client: MarketDataClient
 }
 
 impl AccountClient {
-    pub fn new<T: Into<String>, U: Into<Url>>(api_key: T, api_secret: T, url: U) -> Self {
+    pub fn new<T: Into<String>>(api_key: T, secret_key: T, url: T) -> Self {
         Self {
             api_key: api_key.into(), 
-            api_secret: api_secret.into(),
+            secret_key: secret_key.into(),
             market_client: MarketDataClient::new(url)
         }
     }
 
     pub fn account<'a>(&self) -> ParamBuilder<'_, PingParams<'a>>{
-        let MarketDataClient {ref url, ref client} = self.market_client;
+        let Self { api_key, secret_key, market_client } = self;
+        let MarketDataClient { url, client} = market_client;
 
         let url = url.join("/api/v3/account").unwrap();
 
         ParamBuilder::new(
             PingParams::default(),
             client.get(url),
-            Some(Auth::new(&self.api_key, &self.api_secret))
+            Some(Auth { api_key, secret_key })
         )
     }
 }
 
-struct MarketDataClient {
+pub struct MarketDataClient {
     url: Url,
     client: Client,
 }
 
 impl MarketDataClient {
-    pub fn new<U: Into<Url>>(url: U) -> Self {
+    pub fn new<U: Into<String>>(url: U) -> Self {
         Self {
-            url: url.into(),
+            url: url.into().parse::<Url>().expect("Invalid Url"),
             client: Client::new()
         }
     }

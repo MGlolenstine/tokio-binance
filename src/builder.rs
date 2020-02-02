@@ -1,7 +1,13 @@
 use crate::param::*;
 use std::ops::{Deref, DerefMut};
-use reqwest::{RequestBuilder, header::CONTENT_TYPE};
+use reqwest::{RequestBuilder, Response, header::CONTENT_TYPE};
 use crate::error::BinanceError;
+use log::warn;
+
+pub struct Auth<'a> {
+    pub api_key: &'a str,
+    pub secret_key: &'a str
+}
 
 pub struct ParamBuilder<'b, T> {
     params: T,
@@ -22,24 +28,31 @@ where
     }
 
     pub async fn text(self) -> crate::error::Result<String> {
-        
+        let text = self.response().await?.text().await?;
+        Ok(text)
+    }
+
+    async fn response(self) -> crate::error::Result<Response> {
         let res = self.builder()?.send().await?;
         let status = res.status();
 
-        if status.is_success() {
-            Ok(res.text().await?)
-        } else {
+        if status.is_success() { 
+            Ok(res) 
+        } else if status.is_client_error() {
             let reason = status.canonical_reason().unwrap_or("UNKNOWN");
-            println!("{:?}", res.headers());
-            println!("{:?}", res.text().await?);
-            Err(BinanceError::new(status.as_u16(), reason).into())
+            let message = res.text().await.unwrap_or("".into());
+            let err = BinanceError::new(status.as_u16(), reason, &message);
+            Err(err.into())
+        } else {
+            warn!("{}", status);
+            Ok(res)
         }
     }
 
     fn builder(self) -> crate::error::Result<RequestBuilder> {
         let Self {mut params, auth, builder} = self;
-        let (params, builder) = if let Some(Auth {api_key, api_secret}) = auth {
-            (params.sign(api_secret)?, builder.header("X-MBX-APIKEY", api_key))
+        let (params, builder) = if let Some(Auth {api_key, secret_key}) = auth {
+            (params.sign(secret_key)?, builder.header("X-MBX-APIKEY", api_key))
         } else {
             (&*params, builder)
         };

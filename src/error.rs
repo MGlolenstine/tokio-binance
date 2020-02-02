@@ -6,26 +6,36 @@ pub(crate) type BoxError = Box<dyn error::Error + Send + Sync>;
 
 #[derive(Debug)]
 pub(super) enum Kind {
-    BinanceError,
+    Binance,
     SerdeUrlEncoded,
     Reqwest
 }
 
-#[derive(Debug)]
 pub struct BinanceError {
     code: u16,
+    reason: String,
     message: String
 }
 
 impl BinanceError {
-    pub(super) fn new<T: Into<String>>(code: u16, message: T) -> Self {
-        BinanceError { code, message: message.into() }
+    pub(super) fn new<T: Into<String>>(code: u16, reason: T, message: T) -> Self {
+        BinanceError { code, reason: reason.into(), message: message.into() }
     }
 }
 
 impl fmt::Display for BinanceError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Status Code: {}, Reason: {}", self.code, self.message)
+        write!(f, "{}", self.message)
+    }
+}
+
+impl fmt::Debug for BinanceError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut builder = f.debug_struct("BinanceError");
+
+        builder.field("code", &self.code);
+        builder.field("reason", &self.reason);
+        builder.finish()
     }
 }
 
@@ -74,19 +84,17 @@ impl error::Error for Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let err_msg = match self.kind {
-            Kind::BinanceError => "Invalid inputs provided",
-            _ => "Wrong inputs provided",
-        };
-
-        write!(f, "{}", err_msg)
- 
+        if let Some(ref source) = self.source {
+            write!(f, "{:?}: {}", self.kind, source)
+        } else {
+           write!(f, "No source for this error") 
+        }
     }
 }
 
 impl From<BinanceError> for Error {
     fn from(error: BinanceError) -> Self {
-        Error::new(Kind::BinanceError, Some(error))
+        Error::new(Kind::Binance, Some(error))
     }
 }
 

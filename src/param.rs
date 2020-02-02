@@ -7,25 +7,15 @@ use serde_urlencoded::ser::Error;
 
 type HmacSha256 = Hmac<Sha256>;
 
-#[derive(Copy, Clone)]
-pub struct Auth<'a> {
-    pub api_key: &'a str,
-    pub api_secret: &'a str
-}
-
-impl<'a> Auth<'a> {
-    pub(super) fn new(api_key: &'a str, api_secret: &'a str) -> Self {
-        Self {api_key, api_secret}
-    }
-}
-
 #[derive(Serialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum Side {
     Buy,
     Sell
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum OrderType {
     Limit,
     Market,
@@ -37,6 +27,7 @@ pub enum OrderType {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum TimeInForce {
     Gtc,
     Ioc,
@@ -44,6 +35,7 @@ pub enum TimeInForce {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum OrderRespType {
     Ack,
     Result,
@@ -51,6 +43,7 @@ pub enum OrderRespType {
 }
 
 #[derive(Default, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Parameters<'a> {
     pub symbol: Option<&'a str>,
     pub limit: Option<usize>,
@@ -58,6 +51,7 @@ pub struct Parameters<'a> {
     pub start_time: Option<i64>,
     pub end_time: Option<i64>,
     pub side: Option<Side>,
+    #[serde(rename = "type")]
     pub order_type: Option<OrderType>,
     pub time_in_force: Option<TimeInForce>,
     pub quantity: Option<f64>,
@@ -85,12 +79,13 @@ pub struct Parameters<'a> {
 impl<'a> Parameters<'a> {
     pub fn sign<T: Into<String>>(&mut self, secret: T) -> Result<&Self, Error> {
         self.timestamp = Some(Utc::now().timestamp_millis());
+
         let message = serde_urlencoded::to_string(&self)?;
-        let mut mac = HmacSha256::new_varkey(secret.into().as_bytes()).unwrap();
+        let mut mac = HmacSha256::new_varkey(secret.into().as_bytes()).expect("Invalid Key Length");
         mac.input(message.as_bytes());
         let signature = mac.result().code();
-        self.signature = Some(hex::encode(signature));
 
+        self.signature = Some(hex::encode(signature));
         Ok(self)
     }
 }
