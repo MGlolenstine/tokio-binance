@@ -25,6 +25,8 @@ pub trait OrderListId {}
 pub trait RecvWindow {}
 
 pub struct PingParams;
+pub struct TimeParams;
+pub struct ExchangeInfoParams;
 
 pub struct TradesParams;
 impl Limit for TradesParams {}
