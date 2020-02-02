@@ -1,5 +1,4 @@
 use serde::Serialize;
-use std::ops::{Deref, DerefMut};
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use chrono::Utc;
@@ -47,7 +46,7 @@ pub enum OrderRespType {
 pub struct Parameters<'a> {
     pub symbol: Option<&'a str>,
     pub limit: Option<usize>,
-    pub fromid: Option<i64>,
+    pub from_id: Option<i64>,
     pub start_time: Option<i64>,
     pub end_time: Option<i64>,
     pub side: Option<Side>,
@@ -87,22 +86,5 @@ impl<'a> Parameters<'a> {
 
         self.signature = Some(hex::encode(signature));
         Ok(self)
-    }
-}
-
-#[derive(Default)]
-pub struct PingParams<'a>(Parameters<'a>);
-
-impl<'a> Deref for PingParams<'a> {
-    type Target = Parameters<'a>;
-
-    fn deref(&self) -> &Parameters<'a> {
-        &self.0
-    }
-}
-
-impl<'a> DerefMut for PingParams<'a> {
-    fn deref_mut(&mut self) -> &mut Parameters<'a> {
-        &mut self.0
     }
 }

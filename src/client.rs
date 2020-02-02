@@ -1,5 +1,6 @@
 use reqwest::{Url, Client};
 use crate::param::*;
+use crate::types::{TradesParams};
 use crate::builder::{ParamBuilder, Auth};
 
 pub struct AccountClient {
@@ -17,14 +18,14 @@ impl AccountClient {
         }
     }
 
-    pub fn account<'a>(&self) -> ParamBuilder<'_, PingParams<'a>>{
+    pub fn account(&self) -> ParamBuilder<'_, '_, TradesParams>{
         let Self { api_key, secret_key, market_client } = self;
         let MarketDataClient { url, client} = market_client;
 
         let url = url.join("/api/v3/account").unwrap();
 
         ParamBuilder::new(
-            PingParams::default(),
+            Parameters::default(),
             client.get(url),
             Some(Auth { api_key, secret_key })
         )
