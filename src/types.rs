@@ -59,3 +59,9 @@ impl Symbol for TickerPriceParams {}
 
 pub struct OrderBookTickerParams;
 impl Symbol for OrderBookTickerParams {}
+
+pub struct LimitOrderParams;
+impl NewClientOrderId for LimitOrderParams {}
+impl IcebergQty for LimitOrderParams {}
+impl NewOrderRespType for LimitOrderParams {}
+impl RecvWindow for LimitOrderParams {}

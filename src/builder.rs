@@ -5,7 +5,6 @@ use std::marker::PhantomData;
 use crate::types::*;
 use log::warn;
 
-
 pub struct ParamBuilder<'a, 'b, T> {
     _marker: PhantomData<T>,
     params: Parameters<'a>,

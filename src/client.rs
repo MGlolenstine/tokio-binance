@@ -1,5 +1,11 @@
 use reqwest::{Url, Client};
-use crate::param::{self, Parameters};
+use crate::param::{
+    Parameters, 
+    OrderType, 
+    Side, 
+    TimeInForce, 
+    Interval
+};
 use crate::builder::{ParamBuilder};
 use crate::types::*;
 
@@ -19,6 +25,38 @@ impl AccountClient {
             url: url.into().parse::<Url>().expect("Invalid Url"),
             client: Client::new()
         }
+    }
+
+    pub fn place_limit_order<'a>(
+        &self, symbol: &'a str, 
+        side: Side, 
+        price: f64, 
+        quantity: f64, 
+        time_in_force: TimeInForce,
+        test: bool
+    ) -> ParamBuilder<'a, '_, LimitOrderParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = if test {
+            url.join("/api/v3/order/test").unwrap()
+        } else {
+            url.join("/api/v3/order").unwrap()
+        };
+
+        ParamBuilder::new(
+            Parameters { 
+                symbol: Some(symbol),
+                side: Some(side),
+                order_type: Some(OrderType::Limit),
+                price: Some(price),
+                quantity: Some(quantity),
+                time_in_force: Some(time_in_force),
+                ..Parameters::default() 
+            },
+            client.post(url),
+            Some(api_key),
+            Some(secret_key)
+        )
     }
 
     pub fn get_account(&self) -> ParamBuilder<'_, '_, AccountParams>{
@@ -108,7 +146,7 @@ impl MarketDataClient {
         )
     }
 
-    pub fn get_candlestick_bars<'a>(&self, symbol: &'a str, interval: param::Interval) -> ParamBuilder<'a, '_, KlinesParams>{
+    pub fn get_candlestick_bars<'a>(&self, symbol: &'a str, interval: Interval) -> ParamBuilder<'a, '_, KlinesParams>{
         let Self { ref api_key, url, client } = self;
         let url = url.join("/api/v3/klines").unwrap();
 
