@@ -5,25 +5,24 @@ use std::marker::PhantomData;
 use crate::types::*;
 use log::warn;
 
-pub struct Auth<'b> {
-    pub api_key: &'b str,
-    pub secret_key: &'b str
-}
 
 pub struct ParamBuilder<'a, 'b, T> {
     _marker: PhantomData<T>,
     params: Parameters<'a>,
     builder: RequestBuilder,
-    auth: Option<Auth<'b>>
+    api_key: Option<&'b str>,
+    secret_key: Option<&'b str>,
+
 }
 
 impl<'a, 'b, T> ParamBuilder<'a, 'b, T> {
-    pub(super) fn new(params: Parameters<'a>, builder: RequestBuilder, auth: Option<Auth<'b>>) -> Self {
+    pub(super) fn new(params: Parameters<'a>, builder: RequestBuilder, api_key: Option<&'b str>, secret_key: Option<&'b str>) -> Self {
         Self {
             _marker: PhantomData,
             params,
             builder,
-            auth
+            api_key,
+            secret_key
         }
     }
 
@@ -49,12 +48,17 @@ impl<'a, 'b, T> ParamBuilder<'a, 'b, T> {
         }
     }
 
-    fn builder(self) -> crate::error::Result<RequestBuilder> {
-        let Self {_marker: _, mut params, auth, builder} = self;
-        let (params, builder) = if let Some(Auth {api_key, secret_key}) = auth {
-            (params.sign(secret_key)?, builder.header("X-MBX-APIKEY", api_key))
+    fn builder(mut self) -> crate::error::Result<RequestBuilder> {
+        let builder = if let Some(api_key) = self.api_key {
+            self.builder.header("X-MBX-APIKEY", api_key)
         } else {
-            (&params, builder)
+            self.builder
+        };
+
+        let params = if let Some(secret_key) = self.secret_key {
+            self.params.sign(secret_key)?
+        } else {
+            &self.params
         };
 
         let request = builder.try_clone().expect("Unsupported body").build()?;

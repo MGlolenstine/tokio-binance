@@ -27,6 +27,35 @@ pub trait RecvWindow {}
 pub struct PingParams;
 pub struct TimeParams;
 pub struct ExchangeInfoParams;
+pub struct AccountParams;
+pub struct AveragePriceParams;
+
+pub struct OrderBookParams;
+impl Limit for OrderBookParams {}
 
 pub struct TradesParams;
 impl Limit for TradesParams {}
+
+pub struct HistoricalTradesParams;
+impl Limit for HistoricalTradesParams {}
+impl FromId for HistoricalTradesParams {}
+
+pub struct AggTradesParams;
+impl Limit for AggTradesParams {}
+impl FromId for AggTradesParams {}
+impl StartTime for AggTradesParams {}
+impl EndTime for AggTradesParams {}
+
+pub struct KlinesParams;
+impl Limit for KlinesParams {}
+impl StartTime for KlinesParams {}
+impl EndTime for KlinesParams {}
+
+pub struct TwentyfourHourTickerPriceParams;
+impl Symbol for TwentyfourHourTickerPriceParams {}
+
+pub struct TickerPriceParams;
+impl Symbol for TickerPriceParams {}
+
+pub struct OrderBookTickerParams;
+impl Symbol for OrderBookTickerParams {}

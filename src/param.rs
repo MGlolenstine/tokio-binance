@@ -41,6 +41,25 @@ pub enum OrderRespType {
     Full
 }
 
+#[derive(Serialize)]
+pub enum Interval {
+    #[serde(rename = "1m")]  OneMinute,
+    #[serde(rename = "3m")]  ThreeMinutes,
+    #[serde(rename = "5m")]  FiveMinutes,
+    #[serde(rename = "15m")] FifTeenMinutes,
+    #[serde(rename = "30m")] ThirtyMinutes,
+    #[serde(rename = "1h")]  OneHour,
+    #[serde(rename = "2h")]  TwoHours,
+    #[serde(rename = "4h")]  FourHours,
+    #[serde(rename = "6h")]  SixHours,
+    #[serde(rename = "8h")]  EightHours,
+    #[serde(rename = "12h")] TwelveHours,
+    #[serde(rename = "1d")]  OneDay,
+    #[serde(rename = "3d")]  ThreeDays,
+    #[serde(rename = "1w")]  OneWeek,
+    #[serde(rename = "1M")]  OneMonth,
+}
+
 #[derive(Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Parameters<'a> {
@@ -49,6 +68,7 @@ pub struct Parameters<'a> {
     pub from_id: Option<i64>,
     pub start_time: Option<i64>,
     pub end_time: Option<i64>,
+    pub interval: Option<Interval>,
     pub side: Option<Side>,
     #[serde(rename = "type")]
     pub order_type: Option<OrderType>,
