@@ -108,30 +108,9 @@ impl<'a, 'b, T: EndTime> ParamBuilder<'a, 'b, T> {
     }
 }
 
-impl<'a, 'b, T: Side> ParamBuilder<'a, 'b, T> {
-    pub fn with_side(mut self, side: param::Side) -> Self {
-        self.params.side = Some(side);
-        self
-    }
-}
-
-impl<'a, 'b, T: OrderType> ParamBuilder<'a, 'b, T> {
-    pub fn with_type(mut self, order_type: param::OrderType) -> Self {
-        self.params.order_type = Some(order_type);
-        self
-    }
-}
-
 impl<'a, 'b, T: TimeInForce> ParamBuilder<'a, 'b, T> {
     pub fn with_time_in_force(mut self, time_in_force: param::TimeInForce) -> Self {
         self.params.time_in_force = Some(time_in_force);
-        self
-    }
-}
-
-impl<'a, 'b, T: Quantity> ParamBuilder<'a, 'b, T> {
-    pub fn with_quantity(mut self, quantity: f64) -> Self {
-        self.params.quantity = Some(quantity);
         self
     }
 }
@@ -150,8 +129,29 @@ impl<'a, 'b, T: NewClientOrderId> ParamBuilder<'a, 'b, T> {
     }
 }
 
-impl<'a, 'b, T: StopPrice> ParamBuilder<'a, 'b, T> {
-    pub fn with_stop_price(mut self, stop_price: f64) -> Self {
+impl<'a, 'b, T: MarketOrderStopPrice> ParamBuilder<'a, 'b, T> {
+    pub fn with_stop_loss(mut self, stop_price: f64) -> Self {
+        self.params.order_type = Some(param::OrderType::StopLoss);
+        self.params.stop_price = Some(stop_price);
+        self
+    }
+
+    pub fn with_take_profit(mut self, stop_price: f64) -> Self {
+        self.params.order_type = Some(param::OrderType::TakeProfit);
+        self.params.stop_price = Some(stop_price);
+        self
+    }
+}
+
+impl<'a, 'b, T: LimitOrderStopPrice> ParamBuilder<'a, 'b, T> {
+    pub fn with_stop_loss_limit(mut self, stop_price: f64) -> Self {
+        self.params.order_type = Some(param::OrderType::StopLossLimit);
+        self.params.stop_price = Some(stop_price);
+        self
+    }
+
+    pub fn with_take_profit_limit(mut self, stop_price: f64) -> Self {
+        self.params.order_type = Some(param::OrderType::TakeProfitLimit);
         self.params.stop_price = Some(stop_price);
         self
     }
@@ -159,6 +159,7 @@ impl<'a, 'b, T: StopPrice> ParamBuilder<'a, 'b, T> {
 
 impl<'a, 'b, T: IcebergQty> ParamBuilder<'a, 'b, T> {
     pub fn with_iceberg_qty(mut self, iceberg_qty: f64) -> Self {
+        self.params.time_in_force = Some(param::TimeInForce::Gtc);
         self.params.iceberg_qty = Some(iceberg_qty);
         self
     }

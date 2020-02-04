@@ -6,6 +6,11 @@ use serde_urlencoded::ser::Error;
 
 type HmacSha256 = Hmac<Sha256>;
 
+pub enum ID<'a> {
+    OrderId(i64),
+    OriClientOrderId(&'a str)
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Side {
@@ -14,7 +19,7 @@ pub enum Side {
 }
 
 #[derive(Serialize)]
-#[serde(rename_all = "UPPERCASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum OrderType {
     Limit,
     Market,

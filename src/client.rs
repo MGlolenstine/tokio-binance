@@ -4,7 +4,8 @@ use crate::param::{
     OrderType, 
     Side, 
     TimeInForce, 
-    Interval
+    Interval,
+    ID
 };
 use crate::builder::{ParamBuilder};
 use crate::types::*;
@@ -32,15 +33,14 @@ impl AccountClient {
         side: Side, 
         price: f64, 
         quantity: f64, 
-        time_in_force: TimeInForce,
-        test: bool
+        execute: bool
     ) -> ParamBuilder<'a, '_, LimitOrderParams>{
         let Self { ref api_key, ref secret_key, url, client } = self;
 
-        let url = if test {
-            url.join("/api/v3/order/test").unwrap()
-        } else {
+        let url = if execute {
             url.join("/api/v3/order").unwrap()
+        } else {
+            url.join("/api/v3/order/test").unwrap()
         };
 
         ParamBuilder::new(
@@ -50,10 +50,68 @@ impl AccountClient {
                 order_type: Some(OrderType::Limit),
                 price: Some(price),
                 quantity: Some(quantity),
-                time_in_force: Some(time_in_force),
+                time_in_force: Some(TimeInForce::Gtc),
                 ..Parameters::default() 
             },
             client.post(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
+    pub fn place_market_order<'a>(
+        &self, symbol: &'a str, 
+        side: Side, 
+        quantity: f64, 
+        execute: bool
+    ) -> ParamBuilder<'a, '_, MarketOrderParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = if execute {
+            url.join("/api/v3/order").unwrap()
+        } else {
+            url.join("/api/v3/order/test").unwrap()
+        };
+
+        ParamBuilder::new(
+            Parameters { 
+                symbol: Some(symbol),
+                side: Some(side),
+                order_type: Some(OrderType::Market),
+                quantity: Some(quantity),
+                ..Parameters::default() 
+            },
+            client.post(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
+    pub fn get_order_status<'a>(&self, symbol: &'a str, id: ID<'a>) -> ParamBuilder<'a, '_, OrderStatusParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/order").unwrap();
+
+        let order_id = if let ID::OrderId(id) = id {
+            Some(id)
+        } else {
+            None
+        };
+
+        let orig_client_order_id = if let ID::OriClientOrderId(id) = id {
+            Some(id)
+        } else {
+            None
+        };
+
+        ParamBuilder::new(
+            Parameters { 
+                symbol: Some(symbol),
+                order_id,
+                orig_client_order_id,
+                ..Parameters::default() 
+            },
+            client.get(url),
             Some(api_key),
             Some(secret_key)
         )
