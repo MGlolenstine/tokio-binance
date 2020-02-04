@@ -157,6 +157,24 @@ impl<'a, 'b, T: LimitOrderStopPrice> ParamBuilder<'a, 'b, T> {
     }
 }
 
+impl<'a, 'b, T: LimitMaker> ParamBuilder<'a, 'b, T> {
+    pub fn into_limit_maker(self) -> ParamBuilder<'a, 'b, LimitMakerOrderParams> {
+        ParamBuilder::new(
+            Parameters { 
+                symbol: self.params.symbol,
+                side: self.params.side,
+                order_type: Some(param::OrderType::LimitMaker),
+                price: self.params.price,
+                quantity: self.params.quantity,
+                ..Parameters::default() 
+            },
+            self.builder,
+            self.api_key,
+            self.secret_key
+        )
+    }
+}
+
 impl<'a, 'b, T: IcebergQty> ParamBuilder<'a, 'b, T> {
     pub fn with_iceberg_qty(mut self, iceberg_qty: f64) -> Self {
         self.params.time_in_force = Some(param::TimeInForce::Gtc);
@@ -222,15 +240,9 @@ impl<'a, 'b, T: StopIcebergQty> ParamBuilder<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: StopLimitPrice> ParamBuilder<'a, 'b, T> {
-    pub fn with_stop_limit_price(mut self, stop_limit_price: f64) -> Self {
+    pub fn with_stop_limit_price(mut self, stop_limit_price: f64, time_in_force: param::TimeInForce) -> Self {
+        self.params.stop_limit_time_in_force = Some(time_in_force);
         self.params.stop_limit_price = Some(stop_limit_price);
-        self
-    }
-}
-
-impl<'a, 'b, T: StopLimitTimeInForce> ParamBuilder<'a, 'b, T> {
-    pub fn with_stop_limit_time_in_force(mut self, stop_limit_time_in_force: param::TimeInForce) -> Self {
-        self.params.stop_limit_time_in_force = Some(stop_limit_time_in_force);
         self
     }
 }

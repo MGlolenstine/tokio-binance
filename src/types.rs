@@ -17,10 +17,10 @@ pub trait StopClientOrderId {}
 pub trait LimitIcebergQty {}
 pub trait StopIcebergQty {}
 pub trait StopLimitPrice {}
-pub trait StopLimitTimeInForce {}
 pub trait OrderListId {}
 pub trait RecvWindow {}
 
+pub trait LimitMaker {}
 pub trait LimitOrderStopPrice {}
 pub trait MarketOrderStopPrice {}
 
@@ -62,11 +62,17 @@ impl Symbol for OrderBookTickerParams {}
 
 pub struct LimitOrderParams;
 impl TimeInForce for LimitOrderParams {}
+impl LimitMaker for LimitOrderParams {}
 impl LimitOrderStopPrice for LimitOrderParams {}
 impl NewClientOrderId for LimitOrderParams {}
 impl IcebergQty for LimitOrderParams {}
 impl NewOrderRespType for LimitOrderParams {}
 impl RecvWindow for LimitOrderParams {}
+
+pub struct LimitMakerOrderParams;
+impl NewClientOrderId for LimitMakerOrderParams {}
+impl NewOrderRespType for LimitMakerOrderParams {}
+impl RecvWindow for LimitMakerOrderParams {}
 
 pub struct MarketOrderParams;
 impl MarketOrderStopPrice for MarketOrderParams {}
@@ -84,3 +90,20 @@ impl RecvWindow for CancelOrderParams {}
 pub struct OpenOrderParams;
 impl Symbol for OpenOrderParams {}
 impl RecvWindow for OpenOrderParams {}
+
+pub struct AllOrdersParams;
+impl OrderId for AllOrdersParams {}
+impl StartTime for AllOrdersParams {}
+impl EndTime for AllOrdersParams {}
+impl Limit for AllOrdersParams {}
+impl RecvWindow for AllOrdersParams {}
+
+pub struct OcoParams;
+impl ListClientOrderId for OcoParams {}
+impl LimitClientOrderId for OcoParams {}
+impl LimitIcebergQty for OcoParams {}
+impl StopClientOrderId for OcoParams {}
+impl StopIcebergQty for OcoParams {}
+impl StopLimitPrice for OcoParams {}
+impl NewOrderRespType for OcoParams {}
+impl RecvWindow for OcoParams {}

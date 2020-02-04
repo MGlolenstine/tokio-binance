@@ -160,6 +160,45 @@ impl AccountClient {
         )
     }
 
+    pub fn get_all_orders<'a>(&self, symbol: &'a str) -> ParamBuilder<'a, '_, AllOrdersParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/allOrders").unwrap();
+
+        ParamBuilder::new(
+            Parameters { symbol: Some(symbol), ..Parameters::default() },
+            client.get(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
+    pub fn place_oco_order<'a>(
+        &self, symbol: &'a str, 
+        side: Side, 
+        price: f64,
+        stop_price: f64,
+        quantity: f64,
+    ) -> ParamBuilder<'a, '_, OcoParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/order/oco").unwrap();
+
+        ParamBuilder::new(
+            Parameters { 
+                symbol: Some(symbol),
+                side: Some(side),
+                price: Some(price),
+                stop_price: Some(stop_price),
+                quantity: Some(quantity),
+                ..Parameters::default() 
+            },
+            client.post(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
     pub fn get_account(&self) -> ParamBuilder<'_, '_, AccountParams>{
         let Self { ref api_key, ref secret_key, url, client } = self;
 
