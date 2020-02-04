@@ -117,6 +117,49 @@ impl AccountClient {
         )
     }
 
+    pub fn cancel_order<'a>(&self, symbol: &'a str, id: ID<'a>) -> ParamBuilder<'a, '_, CancelOrderParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/order").unwrap();
+
+        let order_id = if let ID::OrderId(id) = id {
+            Some(id)
+        } else {
+            None
+        };
+
+        let orig_client_order_id = if let ID::OriClientOrderId(id) = id {
+            Some(id)
+        } else {
+            None
+        };
+
+        ParamBuilder::new(
+            Parameters { 
+                symbol: Some(symbol),
+                order_id,
+                orig_client_order_id,
+                ..Parameters::default() 
+            },
+            client.delete(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
+    pub fn get_open_orders(&self) -> ParamBuilder<'_, '_, OpenOrderParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/openOrders").unwrap();
+
+        ParamBuilder::new(
+            Parameters::default(),
+            client.get(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
     pub fn get_account(&self) -> ParamBuilder<'_, '_, AccountParams>{
         let Self { ref api_key, ref secret_key, url, client } = self;
 
@@ -292,7 +335,7 @@ impl GeneralClient {
         }
     }
 
-    pub fn test_connection(&self) -> ParamBuilder<'_, '_, PingParams>{
+    pub fn ping(&self) -> ParamBuilder<'_, '_, PingParams>{
         let Self { url, client } = self;
         let url = url.join("/api/v3/ping").unwrap();
 
@@ -304,7 +347,7 @@ impl GeneralClient {
         )
     }
 
-    pub fn get_time(&self) -> ParamBuilder<'_, '_, TimeParams>{
+    pub fn get_server_time(&self) -> ParamBuilder<'_, '_, TimeParams>{
         let Self { url, client } = self;
         let url = url.join("/api/v3/time").unwrap();
 

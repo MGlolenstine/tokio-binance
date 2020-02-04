@@ -76,3 +76,11 @@ impl RecvWindow for MarketOrderParams {}
 
 pub struct OrderStatusParams;
 impl RecvWindow for OrderStatusParams {}
+
+pub struct CancelOrderParams;
+impl NewClientOrderId for CancelOrderParams {}
+impl RecvWindow for CancelOrderParams {}
+
+pub struct OpenOrderParams;
+impl Symbol for OpenOrderParams {}
+impl RecvWindow for OpenOrderParams {}
