@@ -7,7 +7,7 @@ use crate::param::{
     Interval,
     ID
 };
-use crate::builder::{ParamBuilder};
+use crate::builder::ParamBuilder;
 use crate::types::*;
 
 #[derive(Clone)]
@@ -291,6 +291,19 @@ impl AccountClient {
 
         ParamBuilder::new(
             Parameters::default(),
+            client.get(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
+    pub fn get_account_trades<'a>(&self, symbol: &'a str) -> ParamBuilder<'a, '_, AccountTradesParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/myTrades").unwrap();
+
+        ParamBuilder::new(
+            Parameters { symbol: Some(symbol), ..Parameters::default() },
             client.get(url),
             Some(api_key),
             Some(secret_key)

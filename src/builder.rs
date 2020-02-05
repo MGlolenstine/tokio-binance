@@ -248,7 +248,7 @@ impl<'a, 'b, T: StopLimitPrice> ParamBuilder<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: OrderListId> ParamBuilder<'a, 'b, T> {
-    pub fn with_order_list_id(mut self, order_list_id: f64) -> Self {
+    pub fn with_order_list_id(mut self, order_list_id: i64) -> Self {
         self.params.order_list_id = Some(order_list_id);
         self
     }

@@ -27,7 +27,6 @@ pub trait MarketOrderStopPrice {}
 pub struct PingParams;
 pub struct TimeParams;
 pub struct ExchangeInfoParams;
-pub struct AccountParams;
 pub struct AveragePriceParams;
 
 pub struct OrderBookParams;
@@ -124,3 +123,13 @@ impl RecvWindow for AllOcoParams {}
 
 pub struct OpenOcoParams;
 impl RecvWindow for OpenOcoParams {}
+
+pub struct AccountParams;
+impl RecvWindow for AccountParams {}
+
+pub struct AccountTradesParams;
+impl Limit for AccountTradesParams {}
+impl FromId for AccountTradesParams {}
+impl StartTime for AccountTradesParams {}
+impl EndTime for AccountTradesParams {}
+impl RecvWindow for AccountTradesParams {}
