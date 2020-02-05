@@ -10,6 +10,9 @@ use crate::param::{
 use crate::builder::ParamBuilder;
 use crate::types::*;
 
+/// https://api.binance.us
+pub const BINANCE_US_URL: &'static str = "https://api.binance.us";
+
 #[derive(Clone)]
 pub struct AccountClient {
     api_key: String,

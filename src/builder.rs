@@ -1,6 +1,7 @@
 use crate::param::{self, Parameters};
 use reqwest::{RequestBuilder, Response, header::CONTENT_TYPE};
 use crate::error::BinanceError;
+use serde::de::DeserializeOwned;
 use std::marker::PhantomData;
 use crate::types::*;
 use log::warn;
@@ -28,6 +29,11 @@ impl<'a, 'b, T> ParamBuilder<'a, 'b, T> {
     pub async fn text(self) -> crate::error::Result<String> {
         let text = self.response().await?.text().await?;
         Ok(text)
+    }
+
+    pub async fn json<J: DeserializeOwned>(self) -> crate::error::Result<J> {
+        let json = self.response().await?.json::<J>().await?;
+        Ok(json)
     }
 
     async fn response(self) -> crate::error::Result<Response> {
