@@ -98,7 +98,7 @@ impl AccountClient {
             None
         };
 
-        let orig_client_order_id = if let ID::OriClientOrderId(id) = id {
+        let orig_client_order_id = if let ID::ClientOId(id) = id {
             Some(id)
         } else {
             None
@@ -128,7 +128,7 @@ impl AccountClient {
             None
         };
 
-        let orig_client_order_id = if let ID::OriClientOrderId(id) = id {
+        let orig_client_order_id = if let ID::ClientOId(id) = id {
             Some(id)
         } else {
             None
@@ -194,6 +194,91 @@ impl AccountClient {
                 ..Parameters::default() 
             },
             client.post(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
+    pub fn cancel_oco<'a>(&self, symbol: &'a str, id: ID<'a>) -> ParamBuilder<'a, '_, CancelOcoParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/orderList").unwrap();
+
+        let order_list_id = if let ID::OrderId(id) = id {
+            Some(id)
+        } else {
+            None
+        };
+
+        let list_client_order_id = if let ID::ClientOId(id) = id {
+            Some(id)
+        } else {
+            None
+        };
+
+        ParamBuilder::new(
+            Parameters { 
+                symbol: Some(symbol),
+                order_list_id,
+                list_client_order_id,
+                ..Parameters::default() 
+            },
+            client.delete(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
+    pub fn get_oco_status<'a>(&self, id: ID<'a>) -> ParamBuilder<'a, '_, OcoStatusParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/orderList").unwrap();
+
+        let order_list_id = if let ID::OrderId(id) = id {
+            Some(id)
+        } else {
+            None
+        };
+
+        let orig_client_order_id = if let ID::ClientOId(id) = id {
+            Some(id)
+        } else {
+            None
+        };
+
+        ParamBuilder::new(
+            Parameters { 
+                order_list_id,
+                orig_client_order_id,
+                ..Parameters::default() 
+            },
+            client.get(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
+    pub fn get_all_oco_orders(&self) -> ParamBuilder<'_, '_, AllOcoParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/allOrderList").unwrap();
+
+        ParamBuilder::new(
+            Parameters::default(),
+            client.get(url),
+            Some(api_key),
+            Some(secret_key)
+        )
+    }
+
+    pub fn get_open_oco_orders(&self) -> ParamBuilder<'_, '_, OpenOcoParams>{
+        let Self { ref api_key, ref secret_key, url, client } = self;
+
+        let url = url.join("/api/v3/openOrderList").unwrap();
+
+        ParamBuilder::new(
+            Parameters::default(),
+            client.get(url),
             Some(api_key),
             Some(secret_key)
         )

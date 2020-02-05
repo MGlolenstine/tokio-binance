@@ -8,7 +8,7 @@ type HmacSha256 = Hmac<Sha256>;
 
 pub enum ID<'a> {
     OrderId(i64),
-    OriClientOrderId(&'a str)
+    ClientOId(&'a str)
 }
 
 #[derive(Serialize)]
@@ -93,7 +93,7 @@ pub struct Parameters<'a> {
     pub stop_iceberg_qty:  Option<f64>,
     pub stop_limit_price: Option<f64>,
     pub stop_limit_time_in_force: Option<TimeInForce>,
-    pub order_list_id: Option<f64>,
+    pub order_list_id: Option<i64>,
     pub listen_key: Option<&'a str>,
     pub recv_window: Option<usize>,
     pub timestamp: Option<i64>,

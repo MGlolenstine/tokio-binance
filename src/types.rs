@@ -107,3 +107,20 @@ impl StopIcebergQty for OcoParams {}
 impl StopLimitPrice for OcoParams {}
 impl NewOrderRespType for OcoParams {}
 impl RecvWindow for OcoParams {}
+
+pub struct CancelOcoParams;
+impl NewClientOrderId for CancelOcoParams {}
+impl RecvWindow for CancelOcoParams {}
+
+pub struct OcoStatusParams;
+impl RecvWindow for OcoStatusParams {}
+
+pub struct AllOcoParams;
+impl Limit for AllOcoParams {}
+impl FromId for AllOcoParams {}
+impl StartTime for AllOcoParams {}
+impl EndTime for AllOcoParams {}
+impl RecvWindow for AllOcoParams {}
+
+pub struct OpenOcoParams;
+impl RecvWindow for OpenOcoParams {}
