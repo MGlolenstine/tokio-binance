@@ -22,13 +22,13 @@ pub struct AccountClient {
 }
 
 impl AccountClient {
-    pub fn new<T: Into<String>>(api_key: T, secret_key: T, url: T) -> Self {
-        Self {
+    pub fn connect<T: Into<String>>(api_key: T, secret_key: T, url: T) -> crate::error::Result<Self> {
+        Ok(Self {
             api_key: api_key.into(), 
             secret_key: secret_key.into(),
-            url: url.into().parse::<Url>().expect("Invalid Url"),
+            url: url.into().parse::<Url>()?,
             client: Client::new()
-        }
+        })
     }
 
     pub fn place_limit_order<'a>(
@@ -331,12 +331,12 @@ pub struct MarketDataClient {
 }
 
 impl MarketDataClient {
-    pub fn new<T: Into<String>>(api_key: T, url: T) -> Self {
-        Self {
+    pub fn connect<T: Into<String>>(api_key: T, url: T) -> crate::error::Result<Self> {
+        Ok(Self {
             api_key: api_key.into(),
-            url: url.into().parse::<Url>().expect("Invalid Url"),
+            url: url.into().parse::<Url>()?,
             client: Client::new()
-        }
+        })
     }
 
     pub fn get_order_book<'a>(&self, symbol: &'a str) -> ParamBuilder<'a, '_, OrderBookParams>{
@@ -468,11 +468,11 @@ pub struct GeneralClient {
 }
 
 impl GeneralClient {
-    pub fn new<U: Into<String>>(url: U) -> Self {
-        Self {
-            url: url.into().parse::<Url>().expect("Invalid Url"),
+    pub fn connect<U: Into<String>>(url: U) -> crate::error::Result<Self> {
+        Ok(Self {
+            url: url.into().parse::<Url>()?,
             client: Client::new()
-        }
+        })
     }
 
     pub fn ping(&self) -> ParamBuilder<'_, '_, PingParams>{

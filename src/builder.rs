@@ -3,6 +3,7 @@ use reqwest::{RequestBuilder, Response, header::CONTENT_TYPE};
 use crate::error::BinanceError;
 use serde::de::DeserializeOwned;
 use std::marker::PhantomData;
+use crate::error::{Error, Kind};
 use crate::types::*;
 use log::warn;
 
@@ -60,13 +61,22 @@ impl<'a, 'b, T> ParamBuilder<'a, 'b, T> {
             self.builder
         };
 
+        let builder = builder.header("User-Agent", "tokio-binance");
+
         let params = if let Some(secret_key) = self.secret_key {
             self.params.sign(secret_key)?
         } else {
             &self.params
         };
 
-        let request = builder.try_clone().expect("Unsupported body").build()?;
+        let request = if let Some(builder) = builder.try_clone() {
+            Ok(builder.build()?)
+        } else {
+            // this is to avoid calling unwrap but I know this will never fail anyways...
+            Err(Error::new(Kind::Other, "Unsupported body".into()))
+        };
+
+        let request = request?;
 
         let builder = if request.method() == "POST" || request.method() == "PUT" {
             let body = serde_urlencoded::to_string(params)?;

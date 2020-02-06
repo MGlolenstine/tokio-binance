@@ -2,7 +2,6 @@ use serde::Serialize;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use chrono::Utc;
-use serde_urlencoded::ser::Error;
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -101,11 +100,11 @@ pub(super) struct Parameters<'a> {
 }
 
 impl<'a> Parameters<'a> {
-    pub fn sign<T: Into<String>>(&mut self, secret: T) -> Result<&Self, Error> {
+    pub fn sign<T: Into<String>>(&mut self, secret: T) -> crate::error::Result<&Self> {
         self.timestamp = Some(Utc::now().timestamp_millis());
 
         let message = serde_urlencoded::to_string(&self)?;
-        let mut mac = HmacSha256::new_varkey(secret.into().as_bytes()).expect("Invalid Key Length");
+        let mut mac = HmacSha256::new_varkey(secret.into().as_bytes())?;
         mac.input(message.as_bytes());
         let signature = mac.result().code();
 

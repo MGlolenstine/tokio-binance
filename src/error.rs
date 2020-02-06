@@ -8,7 +8,12 @@ pub(crate) type BoxError = Box<dyn error::Error + Send + Sync>;
 pub(super) enum Kind {
     Binance,
     SerdeUrlEncoded,
-    Reqwest
+    Reqwest,
+    Tungstenite,
+    SerdeJson,
+    Hmac,
+    Url,
+    Other
 }
 
 pub struct BinanceError {
@@ -107,5 +112,29 @@ impl From<reqwest::Error> for Error {
 impl From<serde_urlencoded::ser::Error> for Error {
     fn from(error: serde_urlencoded::ser::Error) -> Self {
         Error::new(Kind::SerdeUrlEncoded, Some(error))
+    }
+}
+
+impl From<async_tungstenite::tungstenite::Error> for Error {
+    fn from(error: async_tungstenite::tungstenite::Error) -> Self {
+        Error::new(Kind::Tungstenite, Some(error))
+    }
+}
+
+impl From<url::ParseError> for Error {
+    fn from(error: url::ParseError) -> Self {
+        Error::new(Kind::Url, Some(error))
+    }
+}
+
+impl From<serde_json::error::Error> for Error {
+    fn from(error: serde_json::error::Error) -> Self {
+        Error::new(Kind::SerdeJson, Some(error))
+    }
+}
+
+impl From<hmac::crypto_mac::InvalidKeyLength> for Error {
+    fn from(error: hmac::crypto_mac::InvalidKeyLength) -> Self {
+        Error::new(Kind::Hmac, Some(error))
     }
 }
