@@ -1,6 +1,6 @@
 use crate::param::{self, Parameters};
 use reqwest::{RequestBuilder, Response, header::CONTENT_TYPE};
-use crate::error::BinanceError;
+use crate::error::ClientError;
 use serde::de::DeserializeOwned;
 use std::marker::PhantomData;
 use crate::error::{Error, Kind};
@@ -46,7 +46,7 @@ impl<'a, 'b, T> ParamBuilder<'a, 'b, T> {
         } else if status.is_client_error() {
             let reason = status.canonical_reason().unwrap_or("UNKNOWN");
             let message = res.text().await.unwrap_or("".into());
-            let err = BinanceError::new(status.as_u16(), reason, &message);
+            let err = ClientError::new(status.as_u16(), reason, &message);
             Err(err.into())
         } else {
             warn!("{}", status);

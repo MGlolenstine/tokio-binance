@@ -1,5 +1,6 @@
 use std::fmt;
 use std::error;
+use async_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
 
 pub type Result<T> = std::result::Result<T, Error>;
 pub(crate) type BoxError = Box<dyn error::Error + Send + Sync>;
@@ -16,27 +17,51 @@ pub(super) enum Kind {
     Other
 }
 
-pub struct BinanceError {
+#[derive(Debug)]
+pub struct WsCloseError {
+    code: CloseCode,
+    reason: String,
+}
+
+impl WsCloseError {
+    pub(super) fn new<T: Into<String>>(code: CloseCode, reason: T) -> Self {
+        WsCloseError { code, reason: reason.into() }
+    }
+}
+
+impl fmt::Display for WsCloseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.reason)
+    }
+}
+
+impl error::Error for WsCloseError {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        None
+    }
+}
+
+pub struct ClientError {
     code: u16,
     reason: String,
     message: String
 }
 
-impl BinanceError {
+impl ClientError {
     pub(super) fn new<T: Into<String>>(code: u16, reason: T, message: T) -> Self {
-        BinanceError { code, reason: reason.into(), message: message.into() }
+        ClientError { code, reason: reason.into(), message: message.into() }
     }
 }
 
-impl fmt::Display for BinanceError {
+impl fmt::Display for ClientError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.message)
     }
 }
 
-impl fmt::Debug for BinanceError {
+impl fmt::Debug for ClientError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut builder = f.debug_struct("BinanceError");
+        let mut builder = f.debug_struct("ClientError");
 
         builder.field("code", &self.code);
         builder.field("reason", &self.reason);
@@ -44,7 +69,7 @@ impl fmt::Debug for BinanceError {
     }
 }
 
-impl error::Error for BinanceError {
+impl error::Error for ClientError {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         None
     }
@@ -97,8 +122,14 @@ impl fmt::Display for Error {
     }
 }
 
-impl From<BinanceError> for Error {
-    fn from(error: BinanceError) -> Self {
+impl From<ClientError> for Error {
+    fn from(error: ClientError) -> Self {
+        Error::new(Kind::Binance, Some(error))
+    }
+}
+
+impl From<WsCloseError> for Error {
+    fn from(error: WsCloseError) -> Self {
         Error::new(Kind::Binance, Some(error))
     }
 }
