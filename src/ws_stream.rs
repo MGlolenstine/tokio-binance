@@ -22,16 +22,37 @@ use crate::error::{Error, Kind, WsCloseError};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 use serde::Serialize;
+use crate::param::Interval;
 
 /// wss://stream.binance.us:9443
 pub const BINANCE_US_WSS_URL: &'static str = "wss://stream.binance.us:9443";
 
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub enum Channel {
-    AggTrade,
-    Depth,
-    Trade,
+#[derive(Copy, Clone)]
+pub enum Channel<'c> {
+    AggTrade(&'c str),
+    Depth(&'c str, Speed),
+    Trade(&'c str),
+    Kline(&'c str, Interval),
+    MiniTicker(&'c str),
+    AllMiniTickers,
+    Ticker(&'c str),
+    AllTickers,
+    BookTicker(&'c str),
+    AllBookTickers,
+    PartialDepth(&'c str, Level, Speed)
+}
+
+#[derive(Copy, Clone, Serialize)]
+pub enum Level {
+    #[serde(rename = "5")]  Five,
+    #[serde(rename = "10")]  Ten,
+    #[serde(rename = "20")]  Twenty
+}
+
+#[derive(Copy, Clone, Serialize)]
+pub enum Speed {
+    #[serde(rename = "100ms")]  HundredMillis,
+    #[serde(rename = "1000ms")]  ThousandMillis,
 }
 
 #[derive(Serialize)]
@@ -57,16 +78,9 @@ pub struct WebSocketStream {
 }
 
 impl WebSocketStream {
-    pub async fn connect<T: Into<String>>(symbol: &str, channel: Channel, url: T) -> crate::error::Result<Self> {
-        let channel = serde_json::to_value(channel)?;
-        let channel = if let Some(channel) = channel.as_str() {
-            Ok(channel)
-        } else {
-            // this is to avoid calling unwrap but I know this will never fail anyways...
-            Err(Error::new(Kind::Other, "Can't convert channel to string".into()))
-        };
-
-        let url = url.into() + "/ws/" + &symbol.to_lowercase() + "@" + channel?;
+    pub async fn connect<T: Into<String>>(channel: Channel<'_>, url: T) -> crate::error::Result<Self> {
+        let url = url.into() + "/ws/" + &create_endpoint(channel)?;
+        println!("{}", url);
 
         let inner = connect_async(url).await?;
         let mut stream = Self { inner, id: 0 };
@@ -114,11 +128,11 @@ impl WebSocketStream {
         }
     }
 
-    pub async fn subscribe(&mut self, channels: &[(&str, Channel)]) -> crate::error::Result<()> {
+    pub async fn subscribe(&mut self, channels: &[Channel<'_>]) -> crate::error::Result<()> {
         self.send_msg("SUBSCRIBE", channels).await
     }
 
-    pub async fn unsubscribe(&mut self, channels: &[(&str, Channel)]) -> crate::error::Result<()> {
+    pub async fn unsubscribe(&mut self, channels: &[Channel<'_>]) -> crate::error::Result<()> {
         self.send_msg("UNSUBSCRIBE", channels).await
     }
 
@@ -135,20 +149,12 @@ impl WebSocketStream {
         Ok(())
     }
 
-    async fn send_msg(&mut self, method: &str, channels: &[(&str, Channel)]) -> crate::error::Result<()> {
+    async fn send_msg(&mut self, method: &str, channels: &[Channel<'_>]) -> crate::error::Result<()> {
         let params: Result<Vec<_>, _> = channels
             .iter()
-            .map(|(symbol, channel)| -> crate::error::Result<Value> {
-                let channel = serde_json::to_value(channel)?;
-                let channel = if let Some(channel) = channel.as_str() {
-                    Ok(channel)
-                } else {
-                    // this is to avoid calling unwrap but I know this will never fail anyways...
-                    Err(Error::new(Kind::Other, "Can't convert channel to string".into()))
-                };
-
-                let channel = symbol.to_lowercase() + "@" + channel?;
-                Ok(channel.into())
+            .map(|channel| -> crate::error::Result<Value> {
+                let endpoint = create_endpoint(*channel)?;
+                Ok(endpoint.into())
             })
             .collect();
         
@@ -203,5 +209,53 @@ impl Sink<Message> for WebSocketStream {
             Poll::Ready(Err(val)) => Poll::Ready(Err(Error::new(Kind::Tungstenite, Some(val)))),
             Poll::Pending => Poll::Pending,
         }
+    }
+}
+
+fn create_endpoint(channel: Channel<'_>) -> crate::error::Result<String> {
+    match channel {
+        Channel::AggTrade(symbol) => {
+            Ok(symbol.to_lowercase() + "@aggTrade")
+        },
+        Channel::Trade(symbol) => {
+            Ok(symbol.to_lowercase() + "@trade")
+        },
+        Channel::Kline(symbol, interval) => {
+            let interval = serde_json::to_value(interval)?;
+            Ok(symbol.to_lowercase() + "@kline_" + interval.as_str().unwrap())
+        },
+        Channel::MiniTicker(symbol) => {
+            Ok(symbol.to_lowercase() + "@miniTicker")
+        },
+        Channel::AllMiniTickers => {
+            Ok("!miniTicker@arr".into())
+        },
+        Channel::Ticker(symbol) => {
+            Ok(symbol.to_lowercase() + "@ticker")
+        },
+        Channel::AllTickers => {
+            Ok("!ticker@arr".into())
+        },
+        Channel::BookTicker(symbol) => {
+            Ok(symbol.to_lowercase() + "@bookTicker")
+        },
+        Channel::AllBookTickers => {
+            Ok("!bookTicker".into())
+        },
+        Channel::PartialDepth(symbol, level, speed) => {
+            let level = serde_json::to_value(level)?;
+            let speed = serde_json::to_value(speed)?;
+            Ok(
+                symbol.to_lowercase() 
+                + "@depth" 
+                + level.as_str().unwrap() 
+                + "@" 
+                + speed.as_str().unwrap()
+            )
+        },
+        Channel::Depth(symbol, speed) => {
+            let speed = serde_json::to_value(speed)?;
+            Ok(symbol.to_lowercase() + "@depth@" + speed.as_str().unwrap())
+        },
     }
 }

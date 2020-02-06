@@ -5,19 +5,20 @@ use chrono::Utc;
 
 type HmacSha256 = Hmac<Sha256>;
 
+#[derive(Copy, Clone)]
 pub enum ID<'a> {
     OrderId(i64),
     ClientOId(&'a str)
 }
 
-#[derive(Serialize)]
+#[derive(Copy, Clone, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Side {
     Buy,
     Sell
 }
 
-#[derive(Serialize)]
+#[derive(Copy, Clone, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub(super) enum OrderType {
     Limit,
@@ -29,7 +30,7 @@ pub(super) enum OrderType {
     LimitMaker
 }
 
-#[derive(Serialize)]
+#[derive(Copy, Clone, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum TimeInForce {
     Gtc,
@@ -37,7 +38,7 @@ pub enum TimeInForce {
     Fok
 }
 
-#[derive(Serialize)]
+#[derive(Copy, Clone, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum OrderRespType {
     Ack,
@@ -45,7 +46,7 @@ pub enum OrderRespType {
     Full
 }
 
-#[derive(Serialize)]
+#[derive(Copy, Clone, Serialize)]
 pub enum Interval {
     #[serde(rename = "1m")]  OneMinute,
     #[serde(rename = "3m")]  ThreeMinutes,

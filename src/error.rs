@@ -14,7 +14,6 @@ pub(super) enum Kind {
     SerdeJson,
     Hmac,
     Url,
-    Other
 }
 
 #[derive(Debug)]
