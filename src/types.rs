@@ -10,19 +10,24 @@ pub trait StopPrice {}
 pub trait IcebergQty {}
 pub trait NewOrderRespType {}
 pub trait OrderId {}
-pub trait OrigClientOrderId {}
 pub trait ListClientOrderId {}
 pub trait LimitClientOrderId {}
 pub trait StopClientOrderId {}
 pub trait LimitIcebergQty {}
 pub trait StopIcebergQty {}
 pub trait StopLimitPrice {}
-pub trait OrderListId {}
 pub trait RecvWindow {}
 
 pub trait LimitMaker {}
 pub trait LimitOrderStopPrice {}
 pub trait MarketOrderStopPrice {}
+
+pub trait AddressTag {}
+pub trait Name {}
+pub trait Asset {}
+pub trait Status {}
+pub trait Email {}
+pub trait Page {}
 
 pub struct PingParams;
 pub struct TimeParams;
@@ -137,3 +142,74 @@ impl RecvWindow for AccountTradesParams {}
 pub struct StartStreamParams;
 pub struct KeepAliveStreamParams;
 pub struct CloseStreamParams;
+
+pub struct WithdrawParams;
+impl AddressTag for WithdrawParams {}
+impl Name for WithdrawParams {}
+impl RecvWindow for WithdrawParams {}
+
+pub struct DepositHistoryParams;
+impl Asset for DepositHistoryParams {}
+impl Status for DepositHistoryParams {}
+impl StartTime for DepositHistoryParams {}
+impl EndTime for DepositHistoryParams {}
+impl RecvWindow for DepositHistoryParams {}
+
+pub struct WithdrawHistoryParams;
+impl Asset for WithdrawHistoryParams {}
+impl Status for WithdrawHistoryParams {}
+impl StartTime for WithdrawHistoryParams {}
+impl EndTime for WithdrawHistoryParams {}
+impl RecvWindow for WithdrawHistoryParams {}
+
+pub struct DepositAddressParams;
+impl Status for DepositAddressParams {}
+impl RecvWindow for DepositAddressParams {}
+
+pub struct AccountStatusParams;
+impl RecvWindow for AccountStatusParams {}
+
+pub struct SystemStatusParams;
+
+pub struct ApiStatusParams;
+impl RecvWindow for ApiStatusParams {}
+
+pub struct DustlogParams;
+impl RecvWindow for DustlogParams {}
+
+pub struct TradeFeeParams;
+impl Symbol for TradeFeeParams {}
+impl RecvWindow for TradeFeeParams {}
+
+pub struct AssetDetailsParams;
+impl RecvWindow for AssetDetailsParams {}
+
+pub struct SubAccountParams;
+impl Email for SubAccountParams {}
+impl Status for SubAccountParams {}
+impl Page for SubAccountParams {}
+impl Limit for SubAccountParams {}
+impl RecvWindow for SubAccountParams {}
+
+pub struct SubAccountTranferParams;
+impl StartTime for SubAccountTranferParams {}
+impl EndTime for SubAccountTranferParams {}
+impl Page for SubAccountTranferParams {}
+impl Limit for SubAccountTranferParams {}
+impl RecvWindow for SubAccountTranferParams {}
+
+pub struct TransferSubAccountParams;
+impl RecvWindow for TransferSubAccountParams {}
+
+pub struct SubAccountAssetParams;
+impl Symbol for SubAccountAssetParams {}
+impl RecvWindow for SubAccountAssetParams {}
+
+pub struct DustTransferParams;
+impl RecvWindow for DustTransferParams {}
+
+pub struct AssetDividendParams;
+impl Asset for AssetDividendParams {}
+impl StartTime for AssetDividendParams {}
+impl EndTime for AssetDividendParams {}
+impl RecvWindow for AssetDividendParams {}

@@ -206,13 +206,6 @@ impl<'a, 'b, T: OrderId> ParamBuilder<'a, 'b, T> {
     }
 }
 
-impl<'a, 'b, T: OrigClientOrderId> ParamBuilder<'a, 'b, T> {
-    pub fn with_orig_client_order_id(mut self, orig_client_order_id: &'a str) -> Self {
-        self.params.orig_client_order_id = Some(orig_client_order_id);
-        self
-    }
-}
-
 impl<'a, 'b, T: ListClientOrderId> ParamBuilder<'a, 'b, T> {
     pub fn with_list_client_order_id(mut self, list_client_order_id: &'a str) -> Self {
         self.params.list_client_order_id = Some(list_client_order_id);
@@ -256,9 +249,44 @@ impl<'a, 'b, T: StopLimitPrice> ParamBuilder<'a, 'b, T> {
     }
 }
 
-impl<'a, 'b, T: OrderListId> ParamBuilder<'a, 'b, T> {
-    pub fn with_order_list_id(mut self, order_list_id: i64) -> Self {
-        self.params.order_list_id = Some(order_list_id);
+impl<'a, 'b, T: AddressTag> ParamBuilder<'a, 'b, T> {
+    pub fn with_address_tag(mut self, address_tag:  &'a str) -> Self {
+        self.params.address_tag = Some(address_tag);
+        self
+    }
+}
+
+impl<'a, 'b, T: Name> ParamBuilder<'a, 'b, T> {
+    pub fn with_name(mut self, name:  &'a str) -> Self {
+        self.params.name = Some(name);
+        self
+    }
+}
+
+impl<'a, 'b, T: Asset> ParamBuilder<'a, 'b, T> {
+    pub fn with_asset(mut self, asset:  &'a str) -> Self {
+        self.params.asset = Some(asset);
+        self
+    }
+}
+
+impl<'a, 'b, T: Status> ParamBuilder<'a, 'b, T> {
+    pub fn with_status<J: Into<serde_json::Value>>(mut self, status: J) -> Self {
+        self.params.status = Some(status.into());
+        self
+    }
+}
+
+impl<'a, 'b, T: Email> ParamBuilder<'a, 'b, T> {
+    pub fn with_email(mut self, email: &'a str) -> Self {
+        self.params.email = Some(email);
+        self
+    }
+}
+
+impl<'a, 'b, T: Page> ParamBuilder<'a, 'b, T> {
+    pub fn with_page(mut self, page: usize) -> Self {
+        self.params.page = Some(page);
         self
     }
 }

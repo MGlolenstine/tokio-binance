@@ -2,6 +2,7 @@ use serde::Serialize;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use chrono::Utc;
+use serde_json::Value;
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -95,6 +96,16 @@ pub(super) struct Parameters<'a> {
     pub stop_limit_time_in_force: Option<TimeInForce>,
     pub order_list_id: Option<i64>,
     pub listen_key: Option<&'a str>,
+    pub address: Option<&'a str>,
+    pub address_tag: Option<&'a str>,
+    pub name: Option<&'a str>,
+    pub asset: Option<&'a str>,
+    pub status: Option<Value>,
+    pub email: Option<&'a str>,
+    pub page: Option<usize>,
+    pub from_email: Option<&'a str>,
+    pub to_email: Option<&'a str>,
+    pub amount: Option<f64>,
     pub recv_window: Option<usize>,
     pub timestamp: Option<i64>,
     pub signature: Option<String>,

@@ -81,7 +81,6 @@ pub struct WebSocketStream {
 impl WebSocketStream {
     pub async fn connect<T: Into<String>>(channel: Channel<'_>, url: T) -> crate::error::Result<Self> {
         let url = url.into() + "/ws/" + &create_endpoint(channel)?;
-        println!("{}", url);
 
         let inner = connect_async(url).await?;
         let mut stream = Self { inner, id: 0 };
