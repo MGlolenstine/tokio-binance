@@ -5,7 +5,6 @@ mod client;
 pub mod types;
 mod ws_stream;
 
-
-pub use self::client::*;
 pub use self::ws_stream::*;
 pub use self::param::*;
+pub use self::client::*;
