@@ -39,7 +39,8 @@ pub enum Channel<'c> {
     AllTickers,
     BookTicker(&'c str),
     AllBookTickers,
-    PartialDepth(&'c str, Level, Speed)
+    PartialDepth(&'c str, Level, Speed),
+    UserData(&'c str),
 }
 
 #[derive(Copy, Clone, Serialize)]
@@ -256,6 +257,9 @@ fn create_endpoint(channel: Channel<'_>) -> crate::error::Result<String> {
         Channel::Depth(symbol, speed) => {
             let speed = serde_json::to_value(speed)?;
             Ok(symbol.to_lowercase() + "@depth@" + speed.as_str().unwrap())
+        },
+        Channel::UserData(listen_key) => {
+            Ok(listen_key.into())
         },
     }
 }

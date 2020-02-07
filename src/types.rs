@@ -133,3 +133,7 @@ impl FromId for AccountTradesParams {}
 impl StartTime for AccountTradesParams {}
 impl EndTime for AccountTradesParams {}
 impl RecvWindow for AccountTradesParams {}
+
+pub struct StartStreamParams;
+pub struct KeepAliveStreamParams;
+pub struct CloseStreamParams;

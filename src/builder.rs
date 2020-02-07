@@ -167,7 +167,7 @@ impl<'a, 'b, T: LimitOrderStopPrice> ParamBuilder<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: LimitMaker> ParamBuilder<'a, 'b, T> {
-    pub fn into_limit_maker(self) -> ParamBuilder<'a, 'b, LimitMakerOrderParams> {
+    pub fn into_limit_maker_order(self) -> ParamBuilder<'a, 'b, LimitMakerOrderParams> {
         ParamBuilder::new(
             Parameters { 
                 symbol: self.params.symbol,
