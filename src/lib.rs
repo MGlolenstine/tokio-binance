@@ -40,7 +40,7 @@
 //!         loop {
 //!             delay_for(Duration::from_secs(30 * 60)).await;
 //!             if let Err(e) = client.keep_alive(&listen_key_copy).text().await {
-//!                 println!("{}", e);
+//!                 eprintln!("{}", e);
 //!                 return
 //!             }
 //!         }
