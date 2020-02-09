@@ -1,7 +1,12 @@
 # tokio-binance
 Unofficial async client for Binance.
 
-## Usage
+[![Crates.io](https://img.shields.io/crates/v/tokio-binance.svg)](https://crates.io/crates/tokio-binance)
+[![Documentation](https://docs.rs/tokio-binance/badge.svg)](https://docs.rs/tokio-binance)
+![MIT/Apache-2 licensed](https://img.shields.io/crates/l/tokio-binance.svg)
+[![Build Status](https://travis-ci.com/kgeronim/tokio-binance.svg?branch=master)](https://travis-ci.com/kgeronim/tokio-binance)
+
+## Examples
 Add this in your `Cargo.toml`:
 ```toml
 [dependencies]
@@ -10,7 +15,7 @@ serde_json = "1.0"
 tokio = { version = "0.2", features = ["macros", "time"] }
 ```
 
-### Client
+#### Client
 ```rust
 use tokio_binance::{AccountClient, BINANCE_US_URL, ID};
 use serde_json::Value;
@@ -29,7 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Websocket
+#### Websocket
 ```rust
 use tokio_binance::*;
 use tokio::time::{delay_for, Duration};
@@ -47,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         loop {
             delay_for(Duration::from_secs(30 * 60)).await;
             if let Err(e) = client.keep_alive(&listen_key_copy).text().await {
-                println!("{}", e);
+                eprintln!("{}", e);
                 return
             }
         }
