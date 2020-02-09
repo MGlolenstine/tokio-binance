@@ -3,6 +3,7 @@ use reqwest::{RequestBuilder, Response, header::CONTENT_TYPE};
 use crate::error::ClientError;
 use serde::de::DeserializeOwned;
 use std::marker::PhantomData;
+use chrono::{DateTime, TimeZone};
 use crate::types::*;
 use log::warn;
 
@@ -104,15 +105,15 @@ impl<'a, 'b, T: FromId> ParamBuilder<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: StartTime> ParamBuilder<'a, 'b, T> {
-    pub fn with_start_time(mut self, start_time: i64) -> Self {
-        self.params.start_time = Some(start_time);
+    pub fn with_start_time<Tz: TimeZone>(mut self, start_time: DateTime<Tz>) -> Self {
+        self.params.start_time = Some(start_time.timestamp_millis());
         self
     }
 }
 
 impl<'a, 'b, T: EndTime> ParamBuilder<'a, 'b, T> {
-    pub fn with_end_time(mut self, end_time: i64) -> Self {
-        self.params.end_time = Some(end_time);
+    pub fn with_end_time<Tz: TimeZone>(mut self, end_time: DateTime<Tz>) -> Self {
+        self.params.end_time = Some(end_time.timestamp_millis());
         self
     }
 }

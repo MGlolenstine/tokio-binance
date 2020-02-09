@@ -7,10 +7,10 @@ use crate::types::*;
 
 #[derive(Clone)]
 pub struct WithdrawClient {
-    api_key: String,
-    secret_key: String,
-    url: Url,
-    client: Client
+    pub(super) api_key: String,
+    pub(super) secret_key: String,
+    pub(super) url: Url,
+    pub(super) client: Client
 }
 
 impl WithdrawClient {
