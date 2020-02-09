@@ -19,7 +19,7 @@ pub struct AccountClient {
 }
 
 impl AccountClient {
-    /// Creates new client instance
+    /// Creates new client instance.
     /// # Example
     ///
     /// ```no_run
@@ -317,9 +317,9 @@ impl AccountClient {
     ///     // optional: filter by orders greater than or equal to the provided id.
     ///     // If supplied, neither startTime or endTime can be provided
     ///     .with_order_id(1230494)
-    ///     // optional: get orders starting from; pass 24 hours of orders is the default.
+    ///     // optional: get orders from; pass 24 hours of orders is the default.
     ///     .with_start_time(start)
-    ///     // optional: get orders up to end time; default is now.
+    ///     // optional: get orders until; default is now.
     ///     .with_end_time(end)
     ///     // optional: limit the amount of orders; default 500; max 1000.
     ///     .with_limit(100)
@@ -527,9 +527,9 @@ impl AccountClient {
     ///     // optional: filter by orders greater than or equal to the provided id.
     ///     // If supplied, neither startTime or endTime can be provided
     ///     .with_from_id(1230494)
-    ///     // optional: get orders starting from; pass 24 hours of orders is the default.
+    ///     // optional: get orders from; pass 24 hours of orders is the default.
     ///     .with_start_time(start)
-    ///     // optional: get orders up to end time; default is now.
+    ///     // optional: get orders until; default is now.
     ///     .with_end_time(end)
     ///     // optional: limit the amount of orders; default 500; max 1000.
     ///     .with_limit(100)
@@ -617,7 +617,7 @@ impl AccountClient {
             Some(secret_key)
         )
     }
-    /// Get all orders.
+    /// Get trades for a specific account and symbol.
     /// # Example
     ///
     /// ```no_run
@@ -636,9 +636,9 @@ impl AccountClient {
     ///     // optional: filter by orders greater than or equal to the provided id.
     ///     // If supplied, neither startTime or endTime can be provided
     ///     .with_from_id(1230494)
-    ///     // optional: get orders starting from; pass 24 hours of orders is the default.
+    ///     // optional: get orders from; pass 24 hours of orders is the default.
     ///     .with_start_time(start)
-    ///     // optional: get orders up to end time; default is now.
+    ///     // optional: get orders until; default is now.
     ///     .with_end_time(end)
     ///     // optional: limit the amount of orders; default 500; max 1000.
     ///     .with_limit(100)
@@ -663,8 +663,8 @@ impl AccountClient {
         )
     }
     /// Helper method for getting a withdraw client instance.
-    pub fn withdraw_client(&self) -> WithdrawClient {
-        WithdrawClient { 
+    pub fn withdraw_client(&self) -> WithdrawalClient {
+        WithdrawalClient { 
             api_key: self.api_key.clone(),
             secret_key: self.secret_key.clone(), 
             url: self.url.clone(), 

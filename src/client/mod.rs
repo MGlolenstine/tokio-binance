@@ -11,4 +11,4 @@ pub use self::account::AccountClient;
 pub use self::market::MarketDataClient;
 pub use self::general::GeneralClient;
 pub use self::user_data::UserDataClient;
-pub use self::withdraw::WithdrawClient;
+pub use self::withdraw::WithdrawalClient;

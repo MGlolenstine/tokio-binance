@@ -181,8 +181,8 @@ pub struct TradeFeeParams;
 impl Symbol for TradeFeeParams {}
 impl RecvWindow for TradeFeeParams {}
 
-pub struct AssetDetailsParams;
-impl RecvWindow for AssetDetailsParams {}
+pub struct AssetDetailParams;
+impl RecvWindow for AssetDetailParams {}
 
 pub struct SubAccountParams;
 impl Email for SubAccountParams {}

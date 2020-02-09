@@ -11,6 +11,18 @@ pub struct UserDataClient {
 }
 
 impl UserDataClient {
+    /// Creates new client instance
+    /// # Example
+    ///
+    /// ```no_run
+    /// use tokio_binance::{UserDataClient, BINANCE_US_URL};
+    /// 
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = UserDataClient::connect("<api-key>", BINANCE_US_URL)?;
+    ///     Ok(())
+    /// # }
+    /// ```
     pub fn connect<T: Into<String>>(api_key: T, url: T) -> crate::error::Result<Self> {
         Ok(Self {
             api_key: api_key.into(), 
@@ -18,7 +30,24 @@ impl UserDataClient {
             client: Client::new()
         })
     }
-
+    /// Start a new user data stream. 
+    /// The stream will close after 60 minutes unless a keepalive is sent.
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use tokio_binance::{UserDataClient, BINANCE_US_URL};
+    /// use serde_json::Value;
+    /// 
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let client = UserDataClient::connect("<api-key>", BINANCE_US_URL)?;
+    /// let response = client
+    ///     .start_stream()
+    ///     .json::<Value>()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn start_stream(&self) -> ParamBuilder<'_, '_, StartStreamParams>{
         let Self { api_key, url, client } = self;
         let url = url.join("/api/v3/userDataStream").unwrap();
@@ -30,7 +59,25 @@ impl UserDataClient {
             None
         )
     }
-
+    /// Keepalive a user data stream to prevent a time out. 
+    /// User data streams will close after 60 minutes. 
+    /// It's recommended to send a ping about every 30 minutes.
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use tokio_binance::{UserDataClient, BINANCE_US_URL};
+    /// use serde_json::Value;
+    /// 
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let client = UserDataClient::connect("<api-key>", BINANCE_US_URL)?;
+    /// let response = client
+    ///     .keep_alive("<listen-key>")
+    ///     .json::<Value>()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn keep_alive<'a>(&self, listen_key: &'a str) -> ParamBuilder<'a, '_, KeepAliveStreamParams>{
         let Self { api_key,  url, client } = self;
         let url = url.join("/api/v3/userDataStream").unwrap();
@@ -42,7 +89,23 @@ impl UserDataClient {
             None
         )
     }
-
+    /// Close out a user data stream.
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use tokio_binance::{UserDataClient, BINANCE_US_URL};
+    /// use serde_json::Value;
+    /// 
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let client = UserDataClient::connect("<api-key>", BINANCE_US_URL)?;
+    /// let response = client
+    ///     .close_stream("<listen-key>")
+    ///     .json::<Value>()
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn close_stream<'a>(&self, listen_key: &'a str) -> ParamBuilder<'a, '_, CloseStreamParams>{
         let Self { api_key, url, client } = self;
         let url = url.join("/api/v3/userDataStream").unwrap();
