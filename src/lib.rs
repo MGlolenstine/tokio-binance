@@ -1,3 +1,24 @@
+  
+//! Unofficial async client for Binance.
+//!
+//! ## tokio_binance
+//! 
+//! ## Examples
+//!
+//! ### Async Client
+//! ```no_run
+//! #[tokio::main]
+//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     Ok(())
+//! }
+//! ### Async Websocket
+//! ```no_run
+//! #[tokio::main]
+//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     Ok(())
+//! }
+//! ```
+
 mod param;
 pub mod builder;
 pub mod error;

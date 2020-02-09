@@ -79,6 +79,19 @@ pub struct WebSocketStream {
 }
 
 impl WebSocketStream {
+    /// Start websocket stream by connecting to a channel.
+    /// # Example
+    ///
+    /// ```no_run
+    /// use tokio_binance::{WebSocketStream, BINANCE_US_WSS_URL, Channel};
+    /// 
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let channel = Channel::Ticker("BNBUSDT");
+    ///     let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
+    ///     Ok(())
+    /// # }
+    /// ```
     pub async fn connect<T: Into<String>>(channel: Channel<'_>, url: T) -> crate::error::Result<Self> {
         let url = url.into() + "/ws/" + &create_endpoint(channel)?;
 
@@ -92,7 +105,21 @@ impl WebSocketStream {
 
         Ok(stream)
     }
-
+    /// Helper method for getting messages as text.
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use tokio_binance::{WebSocketStream, BINANCE_US_WSS_URL, Channel};
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let channel = Channel::Ticker("BNBUSDT");
+    /// # let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
+    /// while let Some(text) = stream.text().await? {
+    ///     println!("{}", text);
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn text(&mut self) -> crate::error::Result<Option<String>> {
         match self.try_next().await? {
             Some(msg) => {
@@ -120,30 +147,86 @@ impl WebSocketStream {
             None => Ok(None)
         }
     }
-
+    /// Helper method for getting messages as a serde deserializable.
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use tokio_binance::{WebSocketStream, BINANCE_US_WSS_URL, Channel};
+    /// use serde_json::Value;
+    /// 
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let channel = Channel::Ticker("BNBUSDT");
+    /// # let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
+    /// while let Some(value) = stream.json::<Value>().await? {
+    ///     // filter the messages before accessing a field.
+    ///     if value["stream"] == "bnbusdt@ticker" {
+    ///         println!("{}", serde_json::to_string_pretty(&value)?);
+    ///     }
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn json<J: DeserializeOwned>(&mut self) -> crate::error::Result<Option<J>> {
         match self.text().await? {
             Some(text) => Ok(Some(serde_json::from_str(&text)?)),
             None => Ok(None)
         }
     }
-
+    /// Subscribe to one or more channels aka streams.
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use tokio_binance::{WebSocketStream, BINANCE_US_WSS_URL};
+    /// use tokio_binance::{Channel, Interval};
+    /// 
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let channel = Channel::Ticker("BNBUSDT");
+    /// # let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
+    /// stream.subscribe(&[
+    ///     Channel::AggTrade("BNBUSDT"),
+    ///     Channel::Ticker("BTCUSDT"),
+    ///     Channel::Kline("BNBUSDT", Interval::OneMinute)
+    ///     // and so on
+    /// ]).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn subscribe(&mut self, channels: &[Channel<'_>]) -> crate::error::Result<()> {
         self.send_msg("SUBSCRIBE", channels).await
     }
-
+    /// Unsubscribe from one or more channels aka streams.
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use tokio_binance::{WebSocketStream, BINANCE_US_WSS_URL};
+    /// use tokio_binance::{Channel, Interval};
+    /// 
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// # let channel = Channel::Ticker("BNBUSDT");
+    /// # let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
+    /// stream.subscribe(&[
+    ///     Channel::AggTrade("BNBUSDT"),
+    ///     Channel::Kline("BNBUSDT", Interval::OneMinute)
+    ///     // and so on
+    /// ]).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn unsubscribe(&mut self, channels: &[Channel<'_>]) -> crate::error::Result<()> {
         self.send_msg("UNSUBSCRIBE", channels).await
     }
-
+    /// Returns a shared reference to the inner stream.
     pub fn get_ref(&self) -> &InnerStream {
         &self.inner
     }
-
+    /// Returns a mutable reference to the inner stream.
     pub fn get_mut(&mut self) -> &mut InnerStream {
         &mut self.inner
     }
-
+    /// Close the underlying web socket
     pub async fn close(&mut self, msg: Option<CloseFrame<'_>>) -> crate::error::Result<()> {
         self.inner.0.close(msg).await?;
         Ok(())
