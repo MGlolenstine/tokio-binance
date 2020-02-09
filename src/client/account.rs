@@ -10,6 +10,7 @@ use crate::builder::ParamBuilder;
 use crate::types::*;
 use crate::client::*;
 
+/// Client for dealing with orders
 #[derive(Clone)]
 pub struct AccountClient {
     api_key: String,
@@ -29,7 +30,7 @@ impl AccountClient {
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL);
     ///     Ok(())
-    /// # }
+    /// }
     /// ```
     pub fn connect<T: Into<String>>(api_key: T, secret_key: T, url: T) -> crate::error::Result<Self> {
         Ok(Self {

@@ -5,6 +5,7 @@ use crate::param::{
 use crate::builder::ParamBuilder;
 use crate::types::*;
 
+/// Client for dealing with general exchange information
 #[derive(Clone)]
 pub struct GeneralClient {
     pub(super) url: Url,
@@ -22,7 +23,7 @@ impl GeneralClient {
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let client = GeneralClient::connect(BINANCE_US_URL)?;
     ///     Ok(())
-    /// # }
+    /// }
     /// ```
     pub fn connect<U: Into<String>>(url: U) -> crate::error::Result<Self> {
         Ok(Self {

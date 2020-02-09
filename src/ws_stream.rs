@@ -40,6 +40,7 @@ pub enum Channel<'c> {
     BookTicker(&'c str),
     AllBookTickers,
     PartialDepth(&'c str, Level, Speed),
+    /// The only channel that takes a listen-key instead of a symbol
     UserData(&'c str),
 }
 
@@ -73,6 +74,7 @@ type InnerStream = (
     Response,
 );
 
+/// Websocket stream for the various binance channels aka streams.
 pub struct WebSocketStream {
     inner: InnerStream,
     id: u64
@@ -90,7 +92,7 @@ impl WebSocketStream {
     ///     let channel = Channel::Ticker("BNBUSDT");
     ///     let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
     ///     Ok(())
-    /// # }
+    /// }
     /// ```
     pub async fn connect<T: Into<String>>(channel: Channel<'_>, url: T) -> crate::error::Result<Self> {
         let url = url.into() + "/ws/" + &create_endpoint(channel)?;
@@ -207,7 +209,7 @@ impl WebSocketStream {
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let channel = Channel::Ticker("BNBUSDT");
     /// # let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
-    /// stream.subscribe(&[
+    /// stream.unsubscribe(&[
     ///     Channel::AggTrade("BNBUSDT"),
     ///     Channel::Kline("BNBUSDT", Interval::OneMinute)
     ///     // and so on

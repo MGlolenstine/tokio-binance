@@ -5,6 +5,7 @@ use crate::param::{
 use crate::builder::ParamBuilder;
 use crate::types::*;
 
+/// Client for dealing with withdrawals and sub accounts.
 #[derive(Clone)]
 pub struct WithdrawalClient {
     pub(super) api_key: String,
@@ -24,7 +25,7 @@ impl WithdrawalClient {
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let client = WithdrawalClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL);
     ///     Ok(())
-    /// # }
+    /// }
     /// ```
     pub fn connect<T: Into<String>>(api_key: T, secret_key: T, url: T) -> crate::error::Result<Self> {
         Ok(Self {

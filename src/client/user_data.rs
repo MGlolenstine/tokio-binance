@@ -3,6 +3,7 @@ use crate::param::Parameters;
 use crate::builder::ParamBuilder;
 use crate::types::*;
 
+/// Client for dealing with the user data stream.
 #[derive(Clone)]
 pub struct UserDataClient {
     api_key: String,
@@ -21,7 +22,7 @@ impl UserDataClient {
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let client = UserDataClient::connect("<api-key>", BINANCE_US_URL)?;
     ///     Ok(())
-    /// # }
+    /// }
     /// ```
     pub fn connect<T: Into<String>>(api_key: T, url: T) -> crate::error::Result<Self> {
         Ok(Self {

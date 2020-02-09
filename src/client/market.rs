@@ -6,6 +6,7 @@ use crate::param::{
 use crate::builder::ParamBuilder;
 use crate::types::*;
 
+/// Client for dealing with market data.
 #[derive(Clone)]
 pub struct MarketDataClient {
     pub(super) api_key: String,
@@ -24,7 +25,7 @@ impl MarketDataClient {
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let client = MarketDataClient::connect("<api-key>", BINANCE_US_URL)?;
     ///     Ok(())
-    /// # }
+    /// }
     /// ```
     pub fn connect<T: Into<String>>(api_key: T, url: T) -> crate::error::Result<Self> {
         Ok(Self {
