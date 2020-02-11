@@ -1,6 +1,6 @@
 [package]
 name = "tokio-binance"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["kgeronim <kevin.geronimo@outlook.com>"]
 edition = "2018"
 description = "Unofficial async client for Binance."

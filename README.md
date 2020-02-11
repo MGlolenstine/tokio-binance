@@ -10,7 +10,7 @@ Unofficial async client for Binance.
 Add this in your `Cargo.toml`:
 ```toml
 [dependencies]
-tokio-binance = "0.2"
+tokio-binance = "0.3"
 serde_json = "1.0"
 tokio = { version = "0.2", features = ["macros", "time"] }
 ```
