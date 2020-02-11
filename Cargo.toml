@@ -1,6 +1,6 @@
 [package]
 name = "tokio-binance"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["kgeronim <kevin.geronimo@outlook.com>"]
 edition = "2018"
 description = "Unofficial async client for Binance."
@@ -26,6 +26,6 @@ crypto-mac = { version = "0.7.0", features = ["std"] }
 chrono = "0.4.10"
 hmac = "0.7.1"
 sha2 = "0.8.1"
-hex = "0.4.0"
+hex = "0.4.1"
 log = "0.4.8"
 url = "2.1.1"

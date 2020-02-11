@@ -10,7 +10,7 @@ Unofficial async client for Binance.
 Add this in your `Cargo.toml`:
 ```toml
 [dependencies]
-tokio-binance = "0.1"
+tokio-binance = "0.2"
 serde_json = "1.0"
 tokio = { version = "0.2", features = ["macros", "time"] }
 ```
@@ -50,7 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  
     tokio::spawn(async move {
         loop {
-            delay_for(Duration::from_secs(30 * 60)).await;
+            delay_for(Duration::from_secs(30*60)).await;
             if let Err(e) = client.keep_alive(&listen_key_copy).text().await {
                 eprintln!("{}", e);
                 return
@@ -62,7 +62,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
  
     while let Some(value) = stream.json::<Value>().await? {
-        if value["stream"] == listen_key {
+        if channel == value["stream"] {
             println!("{}", serde_json::to_string_pretty(&value)?);
         }
     }

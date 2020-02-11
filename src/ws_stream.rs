@@ -23,6 +23,7 @@ use serde::de::DeserializeOwned;
 use serde_json::Value;
 use serde::Serialize;
 use crate::param::Interval;
+use std::fmt;
 
 /// wss://stream.binance.us:9443
 pub const BINANCE_US_WSS_URL: &'static str = "wss://stream.binance.us:9443";
@@ -42,6 +43,77 @@ pub enum Channel<'c> {
     PartialDepth(&'c str, Level, Speed),
     /// The only channel that takes a listen-key instead of a symbol
     UserData(&'c str),
+}
+
+impl<'c> fmt::Display for Channel<'c> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::AggTrade(symbol) => {
+                write!(f, "{}", symbol.to_lowercase() + "@aggTrade")
+            },
+            Self::Trade(symbol) => {
+                write!(f, "{}", symbol.to_lowercase() + "@trade")
+            },
+            Self::Kline(symbol, interval) => {
+                let interval = serde_json::to_value(interval).unwrap();
+                write!(f, "{}", symbol.to_lowercase() + "@kline_" + interval.as_str().unwrap())
+            },
+            Self::MiniTicker(symbol) => {
+                write!(f, "{}", symbol.to_lowercase() + "@miniTicker")
+            },
+            Self::AllMiniTickers => {
+                write!(f, "!miniTicker@arr")
+            },
+            Self::Ticker(symbol) => {
+                write!(f, "{}", symbol.to_lowercase() + "@ticker")
+            },
+            Self::AllTickers => {
+                write!(f, "!ticker@arr")
+            },
+            Self::BookTicker(symbol) => {
+                write!(f, "{}", symbol.to_lowercase() + "@bookTicker")
+            },
+            Self::AllBookTickers => {
+                write!(f, "!bookTicker")
+            },
+            Self::PartialDepth(symbol, level, speed) => {
+                let level = serde_json::to_value(level).unwrap();
+                let speed = serde_json::to_value(speed).unwrap();
+                write!(f, "{}",
+                    symbol.to_lowercase() 
+                    + "@depth" 
+                    + level.as_str().unwrap() 
+                    + "@" 
+                    + speed.as_str().unwrap()
+                )
+            },
+            Self::Depth(symbol, speed) => {
+                let speed = serde_json::to_value(speed).unwrap();
+                write!(f, "{}", symbol.to_lowercase() + "@depth@" + speed.as_str().unwrap())
+            },
+            Self::UserData(listen_key) => {
+                write!(f, "{}", listen_key)
+            },
+        }
+    }
+}
+
+impl<'a, 'c> PartialEq<&'a str> for Channel<'c> {
+    fn eq(&self, other: &&str) -> bool {
+        self.to_string() == *other
+    }
+}
+
+impl<'c> PartialEq<String> for Channel<'c> {
+    fn eq(&self, other: &String) -> bool {
+        self.to_string() == *other
+    }
+}
+
+impl<'c> PartialEq<Value> for Channel<'c> {
+    fn eq(&self, other: &Value) -> bool {
+        self.to_string() == *other
+    }
 }
 
 #[derive(Copy, Clone, Serialize)]
@@ -95,7 +167,7 @@ impl WebSocketStream {
     /// }
     /// ```
     pub async fn connect<T: Into<String>>(channel: Channel<'_>, url: T) -> crate::error::Result<Self> {
-        let url = url.into() + "/ws/" + &create_endpoint(channel)?;
+        let url = url.into() + "/ws/" + &channel.to_string();
 
         let inner = connect_async(url).await?;
         let mut stream = Self { inner, id: 0 };
@@ -162,7 +234,7 @@ impl WebSocketStream {
     /// # let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
     /// while let Some(value) = stream.json::<Value>().await? {
     ///     // filter the messages before accessing a field.
-    ///     if value["stream"] == "bnbusdt@ticker" {
+    ///     if channel == value["stream"] {
     ///         println!("{}", serde_json::to_string_pretty(&value)?);
     ///     }
     /// }
@@ -235,15 +307,12 @@ impl WebSocketStream {
     }
 
     async fn send_msg(&mut self, method: &str, channels: &[Channel<'_>]) -> crate::error::Result<()> {
-        let params: Result<Vec<_>, _> = channels
+        let params: Vec<_> = channels
             .iter()
-            .map(|channel| -> crate::error::Result<Value> {
-                let endpoint = create_endpoint(*channel)?;
-                Ok(endpoint.into())
-            })
+            .map(|channel| Value::String(channel.to_string()))
             .collect();
         
-        let message = SubscribeMessage { method, params: &params?, id: self.id };
+        let message = SubscribeMessage { method, params: &params, id: self.id };
         let message = serde_json::to_string(&message)?;
         self.send(Message::Text(message)).await?;
         self.id += 1;
@@ -294,56 +363,5 @@ impl Sink<Message> for WebSocketStream {
             Poll::Ready(Err(val)) => Poll::Ready(Err(Error::new(Kind::Tungstenite, Some(val)))),
             Poll::Pending => Poll::Pending,
         }
-    }
-}
-
-fn create_endpoint(channel: Channel<'_>) -> crate::error::Result<String> {
-    match channel {
-        Channel::AggTrade(symbol) => {
-            Ok(symbol.to_lowercase() + "@aggTrade")
-        },
-        Channel::Trade(symbol) => {
-            Ok(symbol.to_lowercase() + "@trade")
-        },
-        Channel::Kline(symbol, interval) => {
-            let interval = serde_json::to_value(interval)?;
-            Ok(symbol.to_lowercase() + "@kline_" + interval.as_str().unwrap())
-        },
-        Channel::MiniTicker(symbol) => {
-            Ok(symbol.to_lowercase() + "@miniTicker")
-        },
-        Channel::AllMiniTickers => {
-            Ok("!miniTicker@arr".into())
-        },
-        Channel::Ticker(symbol) => {
-            Ok(symbol.to_lowercase() + "@ticker")
-        },
-        Channel::AllTickers => {
-            Ok("!ticker@arr".into())
-        },
-        Channel::BookTicker(symbol) => {
-            Ok(symbol.to_lowercase() + "@bookTicker")
-        },
-        Channel::AllBookTickers => {
-            Ok("!bookTicker".into())
-        },
-        Channel::PartialDepth(symbol, level, speed) => {
-            let level = serde_json::to_value(level)?;
-            let speed = serde_json::to_value(speed)?;
-            Ok(
-                symbol.to_lowercase() 
-                + "@depth" 
-                + level.as_str().unwrap() 
-                + "@" 
-                + speed.as_str().unwrap()
-            )
-        },
-        Channel::Depth(symbol, speed) => {
-            let speed = serde_json::to_value(speed)?;
-            Ok(symbol.to_lowercase() + "@depth@" + speed.as_str().unwrap())
-        },
-        Channel::UserData(listen_key) => {
-            Ok(listen_key.into())
-        },
     }
 }

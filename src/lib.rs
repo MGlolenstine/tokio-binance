@@ -38,7 +38,7 @@
 //! 
 //!     tokio::spawn(async move {
 //!         loop {
-//!             delay_for(Duration::from_secs(30 * 60)).await;
+//!             delay_for(Duration::from_secs(30*60)).await;
 //!             if let Err(e) = client.keep_alive(&listen_key_copy).text().await {
 //!                 eprintln!("{}", e);
 //!                 return
@@ -50,7 +50,7 @@
 //!     let mut stream = WebSocketStream::connect(channel, BINANCE_US_WSS_URL).await?;
 //! 
 //!     while let Some(value) = stream.json::<Value>().await? {
-//!         if value["stream"] == listen_key {
+//!         if channel == value["stream"] {
 //!             println!("{}", serde_json::to_string_pretty(&value)?);
 //!         }
 //!     }
