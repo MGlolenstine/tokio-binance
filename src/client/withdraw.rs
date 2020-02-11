@@ -27,7 +27,12 @@ impl WithdrawalClient {
     ///     Ok(())
     /// }
     /// ```
-    pub fn connect<T: Into<String>>(api_key: T, secret_key: T, url: T) -> crate::error::Result<Self> {
+    pub fn connect<A, S, U>(api_key: A, secret_key: S, url: U) -> crate::error::Result<Self> 
+    where
+        A: Into<String>,
+        S: Into<String>,
+        U: Into<String>
+    {
         Ok(Self {
             api_key: api_key.into(), 
             secret_key: secret_key.into(),

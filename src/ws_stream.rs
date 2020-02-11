@@ -166,7 +166,7 @@ impl WebSocketStream {
     ///     Ok(())
     /// }
     /// ```
-    pub async fn connect<T: Into<String>>(channel: Channel<'_>, url: T) -> crate::error::Result<Self> {
+    pub async fn connect<U: Into<String>>(channel: Channel<'_>, url: U) -> crate::error::Result<Self> {
         let url = url.into() + "/ws/" + &channel.to_string();
 
         let inner = connect_async(url).await?;

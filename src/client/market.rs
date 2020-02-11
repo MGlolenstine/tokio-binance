@@ -27,7 +27,11 @@ impl MarketDataClient {
     ///     Ok(())
     /// }
     /// ```
-    pub fn connect<T: Into<String>>(api_key: T, url: T) -> crate::error::Result<Self> {
+    pub fn connect<A, U>(api_key: A, url: U) -> crate::error::Result<Self> 
+    where
+        A: Into<String>,
+        U: Into<String>
+    {
         Ok(Self {
             api_key: api_key.into(),
             url: url.into().parse::<Url>()?,
