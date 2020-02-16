@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use chrono::Utc;
@@ -12,7 +12,7 @@ pub enum ID<'a> {
     ClientOId(&'a str)
 }
 
-#[derive(Copy, Clone, Serialize)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Side {
     Buy,
@@ -31,7 +31,7 @@ pub(super) enum OrderType {
     LimitMaker
 }
 
-#[derive(Copy, Clone, Serialize)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum TimeInForce {
     Gtc,
@@ -39,7 +39,7 @@ pub enum TimeInForce {
     Fok
 }
 
-#[derive(Copy, Clone, Serialize)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum OrderRespType {
     Ack,
@@ -47,7 +47,7 @@ pub enum OrderRespType {
     Full
 }
 
-#[derive(Copy, Clone, Serialize)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 pub enum Interval {
     #[serde(rename = "1m")]  OneMinute,
     #[serde(rename = "3m")]  ThreeMinutes,

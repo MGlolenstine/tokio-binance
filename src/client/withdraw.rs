@@ -23,7 +23,7 @@ impl WithdrawalClient {
     /// 
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let client = WithdrawalClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL);
+    ///     let client = WithdrawalClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
     ///     Ok(())
     /// }
     /// ```

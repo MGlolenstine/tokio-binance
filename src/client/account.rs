@@ -28,7 +28,7 @@ impl AccountClient {
     /// 
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL);
+    ///     let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
     ///     Ok(())
     /// }
     /// ```
@@ -669,7 +669,7 @@ impl AccountClient {
         )
     }
     /// Helper method for getting a withdraw client instance.
-    pub fn into_withdraw_client(&self) -> WithdrawalClient {
+    pub fn to_withdraw_client(&self) -> WithdrawalClient {
         WithdrawalClient { 
             api_key: self.api_key.clone(),
             secret_key: self.secret_key.clone(), 
@@ -678,7 +678,7 @@ impl AccountClient {
         }
     }
     /// Helper method for getting a market client instance.
-    pub fn into_market_data_client(&self) -> MarketDataClient {
+    pub fn to_market_data_client(&self) -> MarketDataClient {
         MarketDataClient { 
             api_key: self.api_key.clone(), 
             url: self.url.clone(), 
@@ -686,7 +686,7 @@ impl AccountClient {
         }
     }
     /// Helper method for getting a general client instance.
-    pub fn into_general_client(&self) -> GeneralClient {
+    pub fn to_general_client(&self) -> GeneralClient {
         GeneralClient { url: self.url.clone(), client: self.client.clone() }
     }
 
