@@ -6,13 +6,13 @@ use serde_json::Value;
 
 type HmacSha256 = Hmac<Sha256>;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum ID<'a> {
     OrderId(i64),
     ClientOId(&'a str)
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Side {
     Buy,
@@ -31,7 +31,7 @@ pub(super) enum OrderType {
     LimitMaker
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum TimeInForce {
     Gtc,
@@ -39,7 +39,7 @@ pub enum TimeInForce {
     Fok
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum OrderRespType {
     Ack,
@@ -47,7 +47,7 @@ pub enum OrderRespType {
     Full
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize, Debug)]
 pub enum Interval {
     #[serde(rename = "1m")]  OneMinute,
     #[serde(rename = "3m")]  ThreeMinutes,
