@@ -1,22 +1,22 @@
-use serde::{Serialize, Deserialize};
-use hmac::{Hmac, Mac};
-use sha2::Sha256;
 use chrono::Utc;
+use hmac::{Hmac, Mac, NewMac};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use sha2::Sha256;
 
 type HmacSha256 = Hmac<Sha256>;
 
 #[derive(Copy, Clone, Debug)]
 pub enum ID<'a> {
     OrderId(i64),
-    ClientOId(&'a str)
+    ClientOId(&'a str),
 }
 
 #[derive(Copy, Clone, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Side {
     Buy,
-    Sell
+    Sell,
 }
 
 #[derive(Copy, Clone, Serialize)]
@@ -28,7 +28,7 @@ pub(super) enum OrderType {
     StopLossLimit,
     TakeProfit,
     TakeProfitLimit,
-    LimitMaker
+    LimitMaker,
 }
 
 #[derive(Copy, Clone, Serialize, Deserialize, Debug)]
@@ -36,7 +36,7 @@ pub(super) enum OrderType {
 pub enum TimeInForce {
     Gtc,
     Ioc,
-    Fok
+    Fok,
 }
 
 #[derive(Copy, Clone, Serialize, Deserialize, Debug)]
@@ -44,26 +44,41 @@ pub enum TimeInForce {
 pub enum OrderRespType {
     Ack,
     Result,
-    Full
+    Full,
 }
 
 #[derive(Copy, Clone, Serialize, Deserialize, Debug)]
 pub enum Interval {
-    #[serde(rename = "1m")]  OneMinute,
-    #[serde(rename = "3m")]  ThreeMinutes,
-    #[serde(rename = "5m")]  FiveMinutes,
-    #[serde(rename = "15m")] FifTeenMinutes,
-    #[serde(rename = "30m")] ThirtyMinutes,
-    #[serde(rename = "1h")]  OneHour,
-    #[serde(rename = "2h")]  TwoHours,
-    #[serde(rename = "4h")]  FourHours,
-    #[serde(rename = "6h")]  SixHours,
-    #[serde(rename = "8h")]  EightHours,
-    #[serde(rename = "12h")] TwelveHours,
-    #[serde(rename = "1d")]  OneDay,
-    #[serde(rename = "3d")]  ThreeDays,
-    #[serde(rename = "1w")]  OneWeek,
-    #[serde(rename = "1M")]  OneMonth,
+    #[serde(rename = "1m")]
+    OneMinute,
+    #[serde(rename = "3m")]
+    ThreeMinutes,
+    #[serde(rename = "5m")]
+    FiveMinutes,
+    #[serde(rename = "15m")]
+    FifTeenMinutes,
+    #[serde(rename = "30m")]
+    ThirtyMinutes,
+    #[serde(rename = "1h")]
+    OneHour,
+    #[serde(rename = "2h")]
+    TwoHours,
+    #[serde(rename = "4h")]
+    FourHours,
+    #[serde(rename = "6h")]
+    SixHours,
+    #[serde(rename = "8h")]
+    EightHours,
+    #[serde(rename = "12h")]
+    TwelveHours,
+    #[serde(rename = "1d")]
+    OneDay,
+    #[serde(rename = "3d")]
+    ThreeDays,
+    #[serde(rename = "1w")]
+    OneWeek,
+    #[serde(rename = "1M")]
+    OneMonth,
 }
 
 #[derive(Default, Serialize)]
@@ -88,10 +103,10 @@ pub(super) struct Parameters<'a> {
     pub order_id: Option<i64>,
     pub orig_client_order_id: Option<&'a str>,
     pub list_client_order_id: Option<&'a str>,
-    pub limit_client_order_id:  Option<&'a str>,
+    pub limit_client_order_id: Option<&'a str>,
     pub stop_client_order_id: Option<&'a str>,
-    pub limit_iceberg_qty:  Option<f64>,
-    pub stop_iceberg_qty:  Option<f64>,
+    pub limit_iceberg_qty: Option<f64>,
+    pub stop_iceberg_qty: Option<f64>,
     pub stop_limit_price: Option<f64>,
     pub stop_limit_time_in_force: Option<TimeInForce>,
     pub order_list_id: Option<i64>,
@@ -117,10 +132,10 @@ impl<'a> Parameters<'a> {
 
         let message = serde_urlencoded::to_string(&self)?;
         let mut mac = HmacSha256::new_varkey(secret.into().as_bytes())?;
-        mac.input(message.as_bytes());
-        let signature = mac.result().code();
+        mac.update(message.as_bytes());
+        let signature = mac.finalize();
 
-        self.signature = Some(hex::encode(signature));
+        self.signature = Some(hex::encode(signature.into_bytes()));
         Ok(self)
     }
 }
