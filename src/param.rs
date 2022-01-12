@@ -1,10 +1,8 @@
 use chrono::Utc;
-use hmac::{Hmac, Mac, NewMac};
+use hmac::{Hmac, Mac};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::Sha256;
-
-type HmacSha256 = Hmac<Sha256>;
 
 #[derive(Copy, Clone, Debug)]
 pub enum ID<'a> {
@@ -131,7 +129,7 @@ impl<'a> Parameters<'a> {
         self.timestamp = Some(Utc::now().timestamp_millis());
 
         let message = serde_urlencoded::to_string(&self)?;
-        let mut mac = HmacSha256::new_varkey(secret.into().as_bytes())?;
+        let mut mac = Hmac::<Sha256>::new_from_slice(secret.into().as_bytes())?;
         mac.update(message.as_bytes());
         let signature = mac.finalize();
 

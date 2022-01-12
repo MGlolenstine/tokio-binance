@@ -1,6 +1,6 @@
-use std::fmt;
-use std::error;
 use async_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
+use std::error;
+use std::fmt;
 
 pub type Result<T> = std::result::Result<T, Error>;
 pub(crate) type BoxError = Box<dyn error::Error + Send + Sync>;
@@ -24,7 +24,10 @@ pub struct WsCloseError {
 
 impl WsCloseError {
     pub(super) fn new<T: Into<String>>(code: CloseCode, reason: T) -> Self {
-        WsCloseError { code, reason: reason.into() }
+        WsCloseError {
+            code,
+            reason: reason.into(),
+        }
     }
 }
 
@@ -43,12 +46,16 @@ impl error::Error for WsCloseError {
 pub struct ClientError {
     code: u16,
     reason: String,
-    message: String
+    message: String,
 }
 
 impl ClientError {
     pub(super) fn new<T: Into<String>>(code: u16, reason: T, message: T) -> Self {
-        ClientError { code, reason: reason.into(), message: message.into() }
+        ClientError {
+            code,
+            reason: reason.into(),
+            message: message.into(),
+        }
     }
 }
 
@@ -76,17 +83,17 @@ impl error::Error for ClientError {
 
 pub struct Error {
     kind: Kind,
-    source: Option<BoxError>
+    source: Option<BoxError>,
 }
 
 impl Error {
-    pub(super) fn new<E>(kind: Kind, source: Option<E>) -> Self 
+    pub(super) fn new<E>(kind: Kind, source: Option<E>) -> Self
     where
         E: Into<BoxError>,
     {
         Error {
             kind,
-            source: source.map(Into::into)
+            source: source.map(Into::into),
         }
     }
 }
@@ -116,7 +123,7 @@ impl fmt::Display for Error {
         if let Some(ref source) = self.source {
             write!(f, "{:?}: {}", self.kind, source)
         } else {
-           write!(f, "No source for this error") 
+            write!(f, "No source for this error")
         }
     }
 }
@@ -163,8 +170,8 @@ impl From<serde_json::error::Error> for Error {
     }
 }
 
-impl From<hmac::crypto_mac::InvalidKeyLength> for Error {
-    fn from(error: hmac::crypto_mac::InvalidKeyLength) -> Self {
+impl From<hmac::digest::InvalidLength> for Error {
+    fn from(error: hmac::digest::InvalidLength) -> Self {
         Error::new(Kind::Hmac, Some(error))
     }
 }
