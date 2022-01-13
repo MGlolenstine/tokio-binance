@@ -1,11 +1,11 @@
-use crate::param::{self, Parameters};
-use reqwest::{RequestBuilder, Response, header::CONTENT_TYPE};
 use crate::error::ClientError;
+use crate::param::{self, Parameters};
+use crate::types::*;
+use chrono::{DateTime, TimeZone};
+use log::warn;
+use reqwest::{header::CONTENT_TYPE, RequestBuilder, Response};
 use serde::de::DeserializeOwned;
 use std::marker::PhantomData;
-use chrono::{DateTime, TimeZone};
-use crate::types::*;
-use log::warn;
 
 pub struct ParamBuilder<'a, 'b, T> {
     _marker: PhantomData<T>,
@@ -13,17 +13,21 @@ pub struct ParamBuilder<'a, 'b, T> {
     builder: RequestBuilder,
     api_key: Option<&'b str>,
     secret_key: Option<&'b str>,
-
 }
 
 impl<'a, 'b, T> ParamBuilder<'a, 'b, T> {
-    pub(super) fn new(params: Parameters<'a>, builder: RequestBuilder, api_key: Option<&'b str>, secret_key: Option<&'b str>) -> Self {
+    pub fn new(
+        params: Parameters<'a>,
+        builder: RequestBuilder,
+        api_key: Option<&'b str>,
+        secret_key: Option<&'b str>,
+    ) -> Self {
         Self {
             _marker: PhantomData,
             params,
             builder,
             api_key,
-            secret_key
+            secret_key,
         }
     }
 
@@ -41,11 +45,11 @@ impl<'a, 'b, T> ParamBuilder<'a, 'b, T> {
         let res = self.builder()?.send().await?;
         let status = res.status();
 
-        if status.is_success() { 
-            Ok(res) 
+        if status.is_success() {
+            Ok(res)
         } else if status.is_client_error() {
             let reason = status.canonical_reason().unwrap_or("UNKNOWN");
-            let message = res.text().await.unwrap_or("".into());
+            let message = res.text().await.unwrap_or_else(|_| "".into());
             let err = ClientError::new(status.as_u16(), reason, &message);
             Err(err.into())
         } else {
@@ -60,13 +64,13 @@ impl<'a, 'b, T> ParamBuilder<'a, 'b, T> {
         } else {
             self.builder
         };
-        
+
         let params = if let Some(secret_key) = self.secret_key {
             self.params.sign(secret_key)?
         } else {
             &self.params
         };
-        
+
         let builder = builder.header("User-Agent", "tokio-binance");
 
         // Cloning will never panic since the client does not set a body
@@ -74,7 +78,9 @@ impl<'a, 'b, T> ParamBuilder<'a, 'b, T> {
 
         let builder = if request.method() == "POST" || request.method() == "PUT" {
             let body = serde_urlencoded::to_string(params)?;
-            builder.body(body).header(CONTENT_TYPE, "application/x-www-form-urlencoded")
+            builder
+                .body(body)
+                .header(CONTENT_TYPE, "application/x-www-form-urlencoded")
         } else {
             builder.query(params)
         };
@@ -170,17 +176,17 @@ impl<'a, 'b, T: LimitOrderStopPrice> ParamBuilder<'a, 'b, T> {
 impl<'a, 'b, T: LimitMaker> ParamBuilder<'a, 'b, T> {
     pub fn into_limit_maker_order(self) -> ParamBuilder<'a, 'b, LimitMakerOrderParams> {
         ParamBuilder::new(
-            Parameters { 
+            Parameters {
                 symbol: self.params.symbol,
                 side: self.params.side,
                 order_type: Some(param::OrderType::LimitMaker),
                 price: self.params.price,
                 quantity: self.params.quantity,
-                ..Parameters::default() 
+                ..Parameters::default()
             },
             self.builder,
             self.api_key,
-            self.secret_key
+            self.secret_key,
         )
     }
 }
@@ -243,7 +249,11 @@ impl<'a, 'b, T: StopIcebergQty> ParamBuilder<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: StopLimitPrice> ParamBuilder<'a, 'b, T> {
-    pub fn with_stop_limit_price(mut self, stop_limit_price: f64, time_in_force: param::TimeInForce) -> Self {
+    pub fn with_stop_limit_price(
+        mut self,
+        stop_limit_price: f64,
+        time_in_force: param::TimeInForce,
+    ) -> Self {
         self.params.stop_limit_time_in_force = Some(time_in_force);
         self.params.stop_limit_price = Some(stop_limit_price);
         self
@@ -251,21 +261,21 @@ impl<'a, 'b, T: StopLimitPrice> ParamBuilder<'a, 'b, T> {
 }
 
 impl<'a, 'b, T: AddressTag> ParamBuilder<'a, 'b, T> {
-    pub fn with_address_tag(mut self, address_tag:  &'a str) -> Self {
+    pub fn with_address_tag(mut self, address_tag: &'a str) -> Self {
         self.params.address_tag = Some(address_tag);
         self
     }
 }
 
 impl<'a, 'b, T: Name> ParamBuilder<'a, 'b, T> {
-    pub fn with_name(mut self, name:  &'a str) -> Self {
+    pub fn with_name(mut self, name: &'a str) -> Self {
         self.params.name = Some(name);
         self
     }
 }
 
 impl<'a, 'b, T: Asset> ParamBuilder<'a, 'b, T> {
-    pub fn with_asset(mut self, asset:  &'a str) -> Self {
+    pub fn with_asset(mut self, asset: &'a str) -> Self {
         self.params.asset = Some(asset);
         self
     }

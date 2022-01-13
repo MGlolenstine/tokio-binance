@@ -6,7 +6,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub(crate) type BoxError = Box<dyn error::Error + Send + Sync>;
 
 #[derive(Debug)]
-pub(super) enum Kind {
+pub enum Kind {
     Binance,
     SerdeUrlEncoded,
     Reqwest,
@@ -23,7 +23,7 @@ pub struct WsCloseError {
 }
 
 impl WsCloseError {
-    pub(super) fn new<T: Into<String>>(code: CloseCode, reason: T) -> Self {
+    pub fn new<T: Into<String>>(code: CloseCode, reason: T) -> Self {
         WsCloseError {
             code,
             reason: reason.into(),
@@ -33,7 +33,7 @@ impl WsCloseError {
 
 impl fmt::Display for WsCloseError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.reason)
+        write!(f, "{}: {}", self.code, self.reason)
     }
 }
 
@@ -50,7 +50,7 @@ pub struct ClientError {
 }
 
 impl ClientError {
-    pub(super) fn new<T: Into<String>>(code: u16, reason: T, message: T) -> Self {
+    pub fn new<T: Into<String>>(code: u16, reason: T, message: T) -> Self {
         ClientError {
             code,
             reason: reason.into(),
@@ -71,6 +71,7 @@ impl fmt::Debug for ClientError {
 
         builder.field("code", &self.code);
         builder.field("reason", &self.reason);
+        builder.field("message", &self.message);
         builder.finish()
     }
 }
@@ -87,7 +88,7 @@ pub struct Error {
 }
 
 impl Error {
-    pub(super) fn new<E>(kind: Kind, source: Option<E>) -> Self
+    pub fn new<E>(kind: Kind, source: Option<E>) -> Self
     where
         E: Into<BoxError>,
     {

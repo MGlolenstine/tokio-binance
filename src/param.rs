@@ -19,7 +19,7 @@ pub enum Side {
 
 #[derive(Copy, Clone, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub(super) enum OrderType {
+pub enum OrderType {
     Limit,
     Market,
     StopLoss,
@@ -81,7 +81,7 @@ pub enum Interval {
 
 #[derive(Default, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Parameters<'a> {
+pub struct Parameters<'a> {
     pub symbol: Option<&'a str>,
     pub limit: Option<usize>,
     pub from_id: Option<i64>,
