@@ -1,14 +1,8 @@
-use reqwest::{Url, Client};
-use crate::param::{
-    Parameters, 
-    OrderType, 
-    Side, 
-    TimeInForce,
-    ID
-};
 use crate::builder::ParamBuilder;
-use crate::types::*;
 use crate::client::*;
+use crate::param::{OrderType, Parameters, Side, TimeInForce, ID};
+use crate::types::*;
+use reqwest::{Client, Url};
 
 /// Client for dealing with orders
 #[derive(Clone)]
@@ -16,7 +10,7 @@ pub struct AccountClient {
     api_key: String,
     secret_key: String,
     url: Url,
-    client: Client
+    client: Client,
 }
 
 impl AccountClient {
@@ -25,24 +19,24 @@ impl AccountClient {
     ///
     /// ```no_run
     /// use tokio_binance::{AccountClient, BINANCE_US_URL};
-    /// 
+    ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ///     let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
     ///     Ok(())
     /// }
     /// ```
-    pub fn connect<A, S, U>(api_key: A, secret_key: S, url: U) -> crate::error::Result<Self> 
+    pub fn connect<A, S, U>(api_key: A, secret_key: S, url: U) -> crate::error::Result<Self>
     where
         A: Into<String>,
         S: Into<String>,
-        U: Into<String>
+        U: Into<String>,
     {
         Ok(Self {
-            api_key: api_key.into(), 
+            api_key: api_key.into(),
             secret_key: secret_key.into(),
             url: url.into().parse::<Url>()?,
-            client: Client::new()
+            client: Client::new(),
         })
     }
     /// Place a new limit order.
@@ -52,7 +46,7 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use tokio_binance::{Side::Sell, TimeInForce::Fok, OrderRespType::Full};
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -82,13 +76,19 @@ impl AccountClient {
     /// # }
     /// ```
     pub fn place_limit_order<'a>(
-        &self, symbol: &'a str, 
-        side: Side, 
-        price: f64, 
-        quantity: f64, 
-        execute: bool
-    ) -> ParamBuilder<'a, '_, LimitOrderParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+        &self,
+        symbol: &'a str,
+        side: Side,
+        price: f64,
+        quantity: f64,
+        execute: bool,
+    ) -> ParamBuilder<'a, '_, LimitOrderParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = if execute {
             url.join("/api/v3/order").unwrap()
@@ -97,18 +97,18 @@ impl AccountClient {
         };
 
         ParamBuilder::new(
-            Parameters { 
+            Parameters {
                 symbol: Some(symbol),
                 side: Some(side),
                 order_type: Some(OrderType::Limit),
                 price: Some(price),
                 quantity: Some(quantity),
                 time_in_force: Some(TimeInForce::Gtc),
-                ..Parameters::default() 
+                ..Parameters::default()
             },
             client.post(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Place a new market order.
@@ -118,7 +118,7 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use tokio_binance::{Side::Sell, TimeInForce::Fok, OrderRespType::Full};
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -142,12 +142,18 @@ impl AccountClient {
     /// # }
     /// ```
     pub fn place_market_order<'a>(
-        &self, symbol: &'a str, 
-        side: Side, 
-        quantity: f64, 
-        execute: bool
-    ) -> ParamBuilder<'a, '_, MarketOrderParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+        &self,
+        symbol: &'a str,
+        side: Side,
+        quantity: f64,
+        execute: bool,
+    ) -> ParamBuilder<'a, '_, MarketOrderParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = if execute {
             url.join("/api/v3/order").unwrap()
@@ -156,16 +162,16 @@ impl AccountClient {
         };
 
         ParamBuilder::new(
-            Parameters { 
+            Parameters {
                 symbol: Some(symbol),
                 side: Some(side),
                 order_type: Some(OrderType::Market),
                 quantity: Some(quantity),
-                ..Parameters::default() 
+                ..Parameters::default()
             },
             client.post(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Get order.
@@ -175,7 +181,7 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use tokio_binance::ID;
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -189,8 +195,17 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_order<'a>(&self, symbol: &'a str, id: ID<'a>) -> ParamBuilder<'a, '_, OrderStatusParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn get_order<'a>(
+        &self,
+        symbol: &'a str,
+        id: ID<'a>,
+    ) -> ParamBuilder<'a, '_, OrderStatusParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/order").unwrap();
 
@@ -207,15 +222,15 @@ impl AccountClient {
         };
 
         ParamBuilder::new(
-            Parameters { 
+            Parameters {
                 symbol: Some(symbol),
                 order_id,
                 orig_client_order_id,
-                ..Parameters::default() 
+                ..Parameters::default()
             },
             client.get(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Cancel order.
@@ -225,7 +240,7 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use tokio_binance::ID;
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -241,8 +256,17 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn cancel_order<'a>(&self, symbol: &'a str, id: ID<'a>) -> ParamBuilder<'a, '_, CancelOrderParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn cancel_order<'a>(
+        &self,
+        symbol: &'a str,
+        id: ID<'a>,
+    ) -> ParamBuilder<'a, '_, CancelOrderParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/order").unwrap();
 
@@ -259,15 +283,15 @@ impl AccountClient {
         };
 
         ParamBuilder::new(
-            Parameters { 
+            Parameters {
                 symbol: Some(symbol),
                 order_id,
                 orig_client_order_id,
-                ..Parameters::default() 
+                ..Parameters::default()
             },
             client.delete(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Get open orders.
@@ -276,7 +300,7 @@ impl AccountClient {
     /// ```no_run
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -292,8 +316,13 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_open_orders(&self) -> ParamBuilder<'_, '_, OpenOrderParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn get_open_orders(&self) -> ParamBuilder<'_, '_, OpenOrderParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/openOrders").unwrap();
 
@@ -301,7 +330,7 @@ impl AccountClient {
             Parameters::default(),
             client.get(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Get all orders.
@@ -311,13 +340,13 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use chrono::{Utc, Duration};
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
     /// let end = Utc::now();
     /// let start = end - Duration::hours(23);
-    /// 
+    ///
     /// let response = client
     ///     .get_all_orders("BNBUSDT")
     ///     // optional: filter by orders greater than or equal to the provided id.
@@ -337,16 +366,24 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_all_orders<'a>(&self, symbol: &'a str) -> ParamBuilder<'a, '_, AllOrdersParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn get_all_orders<'a>(&self, symbol: &'a str) -> ParamBuilder<'a, '_, AllOrdersParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/allOrders").unwrap();
 
         ParamBuilder::new(
-            Parameters { symbol: Some(symbol), ..Parameters::default() },
+            Parameters {
+                symbol: Some(symbol),
+                ..Parameters::default()
+            },
             client.get(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Place a new oco order.
@@ -359,7 +396,7 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use tokio_binance::{Side::Sell, TimeInForce::Gtc, OrderRespType::Full};
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -389,28 +426,34 @@ impl AccountClient {
     /// # }
     /// ```
     pub fn place_oco_order<'a>(
-        &self, symbol: &'a str, 
-        side: Side, 
+        &self,
+        symbol: &'a str,
+        side: Side,
         price: f64,
         stop_price: f64,
         quantity: f64,
-    ) -> ParamBuilder<'a, '_, OcoParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    ) -> ParamBuilder<'a, '_, OcoParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/order/oco").unwrap();
 
         ParamBuilder::new(
-            Parameters { 
+            Parameters {
                 symbol: Some(symbol),
                 side: Some(side),
                 price: Some(price),
                 stop_price: Some(stop_price),
                 quantity: Some(quantity),
-                ..Parameters::default() 
+                ..Parameters::default()
             },
             client.post(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Cancel oco order.
@@ -420,7 +463,7 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use tokio_binance::ID;
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -436,8 +479,17 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn cancel_oco_order<'a>(&self, symbol: &'a str, id: ID<'a>) -> ParamBuilder<'a, '_, CancelOcoParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn cancel_oco_order<'a>(
+        &self,
+        symbol: &'a str,
+        id: ID<'a>,
+    ) -> ParamBuilder<'a, '_, CancelOcoParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/orderList").unwrap();
 
@@ -454,15 +506,15 @@ impl AccountClient {
         };
 
         ParamBuilder::new(
-            Parameters { 
+            Parameters {
                 symbol: Some(symbol),
                 order_list_id,
                 list_client_order_id,
-                ..Parameters::default() 
+                ..Parameters::default()
             },
             client.delete(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Get oco order.
@@ -472,7 +524,7 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use tokio_binance::ID;
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -486,8 +538,13 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_oco_order<'a>(&self, id: ID<'a>) -> ParamBuilder<'a, '_, OcoStatusParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn get_oco_order<'a>(&self, id: ID<'a>) -> ParamBuilder<'a, '_, OcoStatusParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/orderList").unwrap();
 
@@ -504,14 +561,14 @@ impl AccountClient {
         };
 
         ParamBuilder::new(
-            Parameters { 
+            Parameters {
                 order_list_id,
                 orig_client_order_id,
-                ..Parameters::default() 
+                ..Parameters::default()
             },
             client.get(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Get all oco orders.
@@ -521,13 +578,13 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use chrono::{Utc, Duration};
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
     /// let end = Utc::now();
     /// let start = end - Duration::hours(23);
-    /// 
+    ///
     /// let response = client
     ///     .get_all_oco_orders()
     ///     // optional: filter by orders greater than or equal to the provided id.
@@ -547,8 +604,13 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_all_oco_orders(&self) -> ParamBuilder<'_, '_, AllOcoParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn get_all_oco_orders(&self) -> ParamBuilder<'_, '_, AllOcoParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/allOrderList").unwrap();
 
@@ -556,7 +618,7 @@ impl AccountClient {
             Parameters::default(),
             client.get(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Get open oco orders.
@@ -565,7 +627,7 @@ impl AccountClient {
     /// ```no_run
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -579,8 +641,13 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_open_oco_orders(&self) -> ParamBuilder<'_, '_, OpenOcoParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn get_open_oco_orders(&self) -> ParamBuilder<'_, '_, OpenOcoParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/openOrderList").unwrap();
 
@@ -588,7 +655,7 @@ impl AccountClient {
             Parameters::default(),
             client.get(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Get current account information.
@@ -597,7 +664,7 @@ impl AccountClient {
     /// ```no_run
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
@@ -611,8 +678,13 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_account(&self) -> ParamBuilder<'_, '_, AccountParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn get_account(&self) -> ParamBuilder<'_, '_, AccountParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/account").unwrap();
 
@@ -620,7 +692,7 @@ impl AccountClient {
             Parameters::default(),
             client.get(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Get trades for a specific account and symbol.
@@ -630,13 +702,13 @@ impl AccountClient {
     /// # use tokio_binance::{AccountClient, BINANCE_US_URL};
     /// use chrono::{Utc, Duration};
     /// use serde_json::Value;
-    /// 
+    ///
     /// # #[tokio::main]
     /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// # let client = AccountClient::connect("<api-key>", "<secret-key>", BINANCE_US_URL)?;
     /// let end = Utc::now();
     /// let start = end - Duration::hours(23);
-    /// 
+    ///
     /// let response = client
     ///     .get_account_trades("BNBUSDT")
     ///     // optional: filter by orders greater than or equal to the provided id.
@@ -656,38 +728,51 @@ impl AccountClient {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_account_trades<'a>(&self, symbol: &'a str) -> ParamBuilder<'a, '_, AccountTradesParams>{
-        let Self { ref api_key, ref secret_key, url, client } = self;
+    pub fn get_account_trades<'a>(
+        &self,
+        symbol: &'a str,
+    ) -> ParamBuilder<'a, '_, AccountTradesParams> {
+        let Self {
+            ref api_key,
+            ref secret_key,
+            url,
+            client,
+        } = self;
 
         let url = url.join("/api/v3/myTrades").unwrap();
 
         ParamBuilder::new(
-            Parameters { symbol: Some(symbol), ..Parameters::default() },
+            Parameters {
+                symbol: Some(symbol),
+                ..Parameters::default()
+            },
             client.get(url),
             Some(api_key),
-            Some(secret_key)
+            Some(secret_key),
         )
     }
     /// Helper method for getting a withdraw client instance.
     pub fn to_withdraw_client(&self) -> WithdrawalClient {
-        WithdrawalClient { 
+        WithdrawalClient {
             api_key: self.api_key.clone(),
-            secret_key: self.secret_key.clone(), 
-            url: self.url.clone(), 
-            client: self.client.clone() 
+            secret_key: self.secret_key.clone(),
+            url: self.url.clone(),
+            client: self.client.clone(),
         }
     }
     /// Helper method for getting a market client instance.
     pub fn to_market_data_client(&self) -> MarketDataClient {
-        MarketDataClient { 
-            api_key: self.api_key.clone(), 
-            url: self.url.clone(), 
-            client: self.client.clone() 
+        MarketDataClient {
+            api_key: self.api_key.clone(),
+            url: self.url.clone(),
+            client: self.client.clone(),
         }
     }
     /// Helper method for getting a general client instance.
     pub fn to_general_client(&self) -> GeneralClient {
-        GeneralClient { url: self.url.clone(), client: self.client.clone() }
+        GeneralClient {
+            url: self.url.clone(),
+            client: self.client.clone(),
+        }
     }
-
 }
