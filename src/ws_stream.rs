@@ -25,9 +25,6 @@ use serde::Serialize;
 use serde_json::Value;
 use std::fmt;
 
-/// wss://stream.binance.us:9443
-pub const BINANCE_US_WSS_URL: &'static str = "wss://stream.binance.us:9443";
-
 #[derive(Copy, Clone)]
 pub enum Channel<'c> {
     AggTrade(&'c str),
@@ -92,19 +89,19 @@ impl<'c> fmt::Display for Channel<'c> {
 
 impl<'a, 'c> PartialEq<&'a str> for Channel<'c> {
     fn eq(&self, other: &&str) -> bool {
-        self.to_string() == *other
+        &self.to_string() == other
     }
 }
 
 impl<'c> PartialEq<String> for Channel<'c> {
     fn eq(&self, other: &String) -> bool {
-        self.to_string() == *other
+        &self.to_string() == other
     }
 }
 
 impl<'c> PartialEq<Value> for Channel<'c> {
     fn eq(&self, other: &Value) -> bool {
-        self.to_string() == *other
+        &self.to_string() == other
     }
 }
 

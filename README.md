@@ -30,7 +30,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .get_order("BNBUSDT", ID::ClientOId("<uuid>"))
         // optional: processing time for request; default is 5000, can't be above 60000.
         .with_recv_window(8000)
-        //
         .json::<Value>()
         .await?;
     Ok(())
