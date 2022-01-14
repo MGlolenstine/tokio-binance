@@ -398,7 +398,7 @@ impl WithdrawalClient {
             url,
             client,
         } = self;
-        let url = url.join("/wapi/v3/tradeFee.html").unwrap();
+        let url = url.join("/sapi/v1/asset/tradeFee").unwrap();
 
         ParamBuilder::new(
             Parameters::default(),

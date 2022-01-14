@@ -64,6 +64,6 @@ mod param;
 pub mod types;
 mod ws_stream;
 
-pub use self::client::*;
-pub use self::param::*;
-pub use self::ws_stream::*;
+pub use client::*;
+pub use param::*;
+pub use ws_stream::*;
