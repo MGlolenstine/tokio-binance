@@ -43,6 +43,7 @@ impl error::Error for WsCloseError {
     }
 }
 
+#[derive(Debug)]
 pub struct ClientError {
     code: u16,
     reason: String,
@@ -61,18 +62,7 @@ impl ClientError {
 
 impl fmt::Display for ClientError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-
-impl fmt::Debug for ClientError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut builder = f.debug_struct("ClientError");
-
-        builder.field("code", &self.code);
-        builder.field("reason", &self.reason);
-        builder.field("message", &self.message);
-        builder.finish()
+        write!(f, "{:?}", self)
     }
 }
 
